@@ -100,21 +100,21 @@ export const SymptomAnalyzer = () => {
 
   const getRiskIcon = (level: string) => {
     switch (level) {
-      case 'high': return <AlertTriangle className="h-5 w-5" />;
-      case 'medium': return <Info className="h-5 w-5" />;
-      case 'low': return <CheckCircle className="h-5 w-5" />;
-      default: return <Info className="h-5 w-5" />;
+      case 'high': return <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />;
+      case 'medium': return <Info className="h-4 w-4 sm:h-5 sm:w-5" />;
+      case 'low': return <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />;
+      default: return <Info className="h-4 w-4 sm:h-5 sm:w-5" />;
     }
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg border border-pink-100 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">AI Symptom Analyzer</h3>
-        <p className="text-gray-600">Describe your symptoms for personalized analysis and recommendations.</p>
+    <div className="bg-white rounded-2xl max-w-2xl mx-auto">
+      <div className="mb-4 sm:mb-6">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">AI Symptom Analyzer</h3>
+        <p className="text-sm sm:text-base text-gray-600">Describe your symptoms for personalized analysis and recommendations.</p>
       </div>
 
-      <div className="space-y-4 mb-6">
+      <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Describe your symptom
@@ -123,12 +123,12 @@ export const SymptomAnalyzer = () => {
             value={symptomData.symptom}
             onChange={(e) => setSymptomData({ ...symptomData, symptom: e.target.value })}
             placeholder="e.g., mild nausea in the morning, lower back pain, headache..."
-            className="w-full p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+            className="w-full p-2 sm:p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             rows={3}
           />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Severity
@@ -136,7 +136,7 @@ export const SymptomAnalyzer = () => {
             <select
               value={symptomData.severity}
               onChange={(e) => setSymptomData({ ...symptomData, severity: e.target.value as any })}
-              className="w-full p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full p-2 sm:p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             >
               <option value="mild">Mild</option>
               <option value="moderate">Moderate</option>
@@ -151,7 +151,7 @@ export const SymptomAnalyzer = () => {
             <select
               value={symptomData.trimester}
               onChange={(e) => setSymptomData({ ...symptomData, trimester: e.target.value as any })}
-              className="w-full p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full p-2 sm:p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             >
               <option value="1">First Trimester (1-12 weeks)</option>
               <option value="2">Second Trimester (13-27 weeks)</option>
@@ -160,7 +160,7 @@ export const SymptomAnalyzer = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Duration
@@ -170,7 +170,7 @@ export const SymptomAnalyzer = () => {
               value={symptomData.duration}
               onChange={(e) => setSymptomData({ ...symptomData, duration: e.target.value })}
               placeholder="e.g., 2 days, 1 week"
-              className="w-full p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full p-2 sm:p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             />
           </div>
 
@@ -183,7 +183,7 @@ export const SymptomAnalyzer = () => {
               value={symptomData.frequency}
               onChange={(e) => setSymptomData({ ...symptomData, frequency: e.target.value })}
               placeholder="e.g., daily, occasionally"
-              className="w-full p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full p-2 sm:p-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             />
           </div>
         </div>
@@ -192,31 +192,31 @@ export const SymptomAnalyzer = () => {
       <button
         onClick={analyzeSymptom}
         disabled={!symptomData.symptom.trim() || isAnalyzing}
-        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
       >
         {isAnalyzing ? 'Analyzing...' : '🔍 Analyze Symptoms'}
       </button>
 
       {analysis && (
-        <div className="mt-6 space-y-4">
-          <div className={`p-4 rounded-lg border-2 ${getRiskColor(analysis.riskLevel)}`}>
+        <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
+          <div className={`p-3 sm:p-4 rounded-lg border-2 ${getRiskColor(analysis.riskLevel)}`}>
             <div className="flex items-center space-x-2 mb-2">
               {getRiskIcon(analysis.riskLevel)}
-              <h4 className="font-semibold capitalize">
+              <h4 className="font-semibold capitalize text-sm sm:text-base">
                 {analysis.riskLevel} Risk Level
               </h4>
             </div>
-            <p className="text-sm">{analysis.description}</p>
+            <p className="text-xs sm:text-sm">{analysis.description}</p>
           </div>
 
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-              <Clock className="h-5 w-5 mr-2" />
+          <div className="bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200">
+            <h4 className="font-semibold text-blue-800 mb-3 flex items-center text-sm sm:text-base">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
               Recommended Actions
             </h4>
             <ul className="space-y-2">
               {analysis.recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start space-x-2 text-sm text-blue-700">
+                <li key={index} className="flex items-start space-x-2 text-xs sm:text-sm text-blue-700">
                   <span className="font-bold">•</span>
                   <span>{rec}</span>
                 </li>
@@ -224,8 +224,8 @@ export const SymptomAnalyzer = () => {
             </ul>
           </div>
 
-          <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
-            <p className="text-sm text-pink-700">
+          <div className="bg-pink-50 p-3 sm:p-4 rounded-lg border border-pink-200">
+            <p className="text-xs sm:text-sm text-pink-700">
               <strong>Disclaimer:</strong> This analysis is for informational purposes only and should not replace professional medical advice. Always consult with your healthcare provider for proper diagnosis and treatment.
             </p>
           </div>

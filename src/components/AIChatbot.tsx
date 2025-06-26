@@ -14,7 +14,7 @@ export const AIChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your JANANI AI companion. I'm here to help you with pregnancy-related questions, symptom analysis, and health guidance. How can I assist you today?",
+      text: "Hello! I'm your JANANI AI companion. I'm here to help you with pregnancy-related questions, symptom analysis, health guidance, and PCOS/PCOD support. How can I assist you today?",
       sender: 'bot',
       timestamp: new Date(),
       type: 'general'
@@ -40,7 +40,10 @@ export const AIChatbot = () => {
       'headache': 'headaches or migraines',
       'swelling': 'swelling in hands, feet, or face',
       'fever': 'fever or high temperature',
-      'dizziness': 'dizziness or lightheadedness'
+      'dizziness': 'dizziness or lightheadedness',
+      'pcos': 'PCOS or PCOD related symptoms',
+      'irregular periods': 'irregular menstrual cycles',
+      'acne': 'hormonal acne or skin issues'
     };
 
     const detectedSymptoms = Object.keys(symptoms).filter(symptom => 
@@ -65,7 +68,10 @@ export const AIChatbot = () => {
       'headache': 'Stay hydrated and rest. Avoid medications without consulting your doctor first.',
       'swelling': 'Mild swelling is common, but sudden or severe swelling may indicate preeclampsia - contact your doctor.',
       'fever': 'Fever during pregnancy needs medical attention. Contact your healthcare provider immediately.',
-      'dizziness': 'This can be due to low blood pressure. Sit down, drink water, and contact your doctor if it persists.'
+      'dizziness': 'This can be due to low blood pressure. Sit down, drink water, and contact your doctor if it persists.',
+      'pcos': 'PCOS requires comprehensive management including lifestyle changes, diet, and medical supervision.',
+      'irregular periods': 'Track your cycles and discuss patterns with your gynecologist for proper evaluation.',
+      'acne': 'Hormonal acne can be managed with gentle skincare and proper medical guidance.'
     };
 
     return symptoms.map(symptom => advice[symptom]).join(' ');
@@ -81,9 +87,16 @@ export const AIChatbot = () => {
       };
     }
 
-    // General pregnancy questions
+    // General pregnancy and PCOS questions
     const lowerMessage = userMessage.toLowerCase();
     
+    if (lowerMessage.includes('pcos') || lowerMessage.includes('pcod')) {
+      return {
+        text: "PCOS/PCOD affects many women and can impact fertility and pregnancy. I can help you track symptoms, suggest lifestyle modifications, and guide you on when to seek medical care. Use our PCOS tracker tab for detailed assessment. What specific PCOS concerns do you have?",
+        type: 'general' as const
+      };
+    }
+
     if (lowerMessage.includes('trimester') || lowerMessage.includes('week')) {
       return {
         text: "Each trimester brings unique changes. First trimester focuses on organ development, second trimester is often the most comfortable, and third trimester prepares for birth. What specific week or trimester information do you need?",
@@ -93,14 +106,14 @@ export const AIChatbot = () => {
 
     if (lowerMessage.includes('diet') || lowerMessage.includes('food') || lowerMessage.includes('eat')) {
       return {
-        text: "Nutrition is crucial during pregnancy! Focus on folate-rich foods, lean proteins, dairy, and plenty of fruits and vegetables. Avoid raw fish, unpasteurized dairy, and limit caffeine. Would you like a personalized meal plan based on your trimester?",
+        text: "Nutrition is crucial during pregnancy! Focus on folate-rich foods, lean proteins, dairy, and plenty of fruits and vegetables. Avoid raw fish, unpasteurized dairy, and limit caffeine. For PCOS, consider a low glycemic index diet. Would you like a personalized meal plan?",
         type: 'general' as const
       };
     }
 
     if (lowerMessage.includes('exercise') || lowerMessage.includes('workout') || lowerMessage.includes('yoga')) {
       return {
-        text: "Gentle exercise is beneficial during pregnancy! I recommend prenatal yoga, walking, and swimming. Avoid contact sports and activities with fall risk. Would you like me to suggest some safe exercises for your current trimester?",
+        text: "Gentle exercise is beneficial during pregnancy and helps manage PCOS! I recommend prenatal yoga, walking, and swimming. Avoid contact sports and activities with fall risk. Would you like me to suggest some safe exercises for your current stage?",
         type: 'general' as const
       };
     }
@@ -114,7 +127,7 @@ export const AIChatbot = () => {
 
     // Default response
     return {
-      text: "I'm here to help with all aspects of your pregnancy journey. You can ask me about symptoms, nutrition, exercise, doctor visits, or any concerns you have. What would you like to know more about?",
+      text: "I'm here to help with all aspects of your pregnancy journey and PCOS/PCOD management. You can ask me about symptoms, nutrition, exercise, doctor visits, or any concerns you have. What would you like to know more about?",
       type: 'general' as const
     };
   };
@@ -157,27 +170,16 @@ export const AIChatbot = () => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-pink-100 flex flex-col z-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-t-2xl">
-        <div className="flex items-center space-x-2">
-          <Heart className="h-6 w-6 animate-pulse" />
-          <div>
-            <h3 className="font-semibold">JANANI AI Assistant</h3>
-            <p className="text-sm text-pink-100">Your pregnancy companion</p>
-          </div>
-        </div>
-      </div>
-
+    <div className="h-full flex flex-col">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] p-3 rounded-2xl ${
+              className={`max-w-[85%] sm:max-w-[80%] p-2 sm:p-3 rounded-2xl ${
                 message.sender === 'user'
                   ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
                   : 'bg-pink-50 text-gray-800'
@@ -187,15 +189,15 @@ export const AIChatbot = () => {
                 {message.sender === 'bot' && (
                   <div className="flex-shrink-0">
                     {message.type === 'symptom' ? (
-                      <AlertCircle className="h-4 w-4 text-orange-500 mt-1" />
+                      <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500 mt-1" />
                     ) : (
-                      <Bot className="h-4 w-4 text-pink-500 mt-1" />
+                      <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-pink-500 mt-1" />
                     )}
                   </div>
                 )}
-                <p className="text-sm leading-relaxed">{message.text}</p>
+                <p className="text-xs sm:text-sm leading-relaxed">{message.text}</p>
                 {message.sender === 'user' && (
-                  <User className="h-4 w-4 text-pink-200 mt-1 flex-shrink-0" />
+                  <User className="h-3 w-3 sm:h-4 sm:w-4 text-pink-200 mt-1 flex-shrink-0" />
                 )}
               </div>
               <p className={`text-xs mt-1 ${
@@ -209,9 +211,9 @@ export const AIChatbot = () => {
 
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-pink-50 p-3 rounded-2xl">
+            <div className="bg-pink-50 p-2 sm:p-3 rounded-2xl">
               <div className="flex items-center space-x-2">
-                <Bot className="h-4 w-4 text-pink-500" />
+                <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-pink-500" />
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -224,22 +226,22 @@ export const AIChatbot = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t border-pink-100">
+      {/* Input - Responsive */}
+      <div className="p-3 sm:p-4 border-t border-pink-100">
         <div className="flex space-x-2">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask about symptoms, nutrition, exercises..."
-            className="flex-1 p-3 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+            placeholder="Ask about symptoms, PCOS, nutrition..."
+            className="flex-1 p-2 sm:p-3 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-xs sm:text-sm"
           />
           <button
             onClick={handleSendMessage}
-            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-3 rounded-full hover:shadow-lg transition-all"
+            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-2 sm:p-3 rounded-full hover:shadow-lg transition-all"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3 w-3 sm:h-4 sm:w-4" />
           </button>
         </div>
       </div>
