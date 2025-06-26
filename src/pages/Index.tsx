@@ -8,6 +8,7 @@ import { Research } from '../components/Research';
 import { CallToAction } from '../components/CallToAction';
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
+import { AIAssistant } from '../components/AIAssistant';
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
       <Research />
       <CallToAction />
       <Footer />
+      <AIAssistant />
     </div>
   );
 };
