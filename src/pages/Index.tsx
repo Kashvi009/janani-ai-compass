@@ -19,19 +19,20 @@ const Index = () => {
       <Features />
       
       {/* Dashboard CTA Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-pink-100 to-purple-100">
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-pink-100 to-purple-100">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 sm:mb-6">
             Experience All Features
           </h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
             Try our comprehensive dashboard with facial recognition login, health questionnaire, workout plans, ultrasound scheduler, and family sharing features.
           </p>
           <Link 
             to="/dashboard"
-            className="inline-flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            className="inline-flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 space-x-2"
           >
-            Launch JANANI Dashboard
+            <span>🌸</span>
+            <span>Launch JANANI Dashboard</span>
           </Link>
         </div>
       </section>
