@@ -1,48 +1,51 @@
 
-import React from 'react';
-import { Hero } from '../components/Hero';
-import { Features } from '../components/Features';
-import { AIExplanation } from '../components/AIExplanation';
-import { Testimonials } from '../components/Testimonials';
-import { Research } from '../components/Research';
-import { CallToAction } from '../components/CallToAction';
-import { Navigation } from '../components/Navigation';
-import { Footer } from '../components/Footer';
-import { AIAssistant } from '../components/AIAssistant';
-import { Link } from 'react-router-dom';
+import { Navigation } from "@/components/Navigation";
+import { Hero } from "@/components/Hero";
+import { Features } from "@/components/Features";
+import { AIModelExplanation } from "@/components/AIModelExplanation";
+import { SmartQuestionnaire } from "@/components/SmartQuestionnaire";
+import { PCOSTracker } from "@/components/PCOSTracker";
+import { UltrasoundScheduler } from "@/components/UltrasoundScheduler";
+import { FacialLogin } from "@/components/FacialLogin";
+import { WorkoutWellness } from "@/components/WorkoutWellness";
+import { SymptomAnalyzer } from "@/components/SymptomAnalyzer";
+import { AIChatbot } from "@/components/AIChatbot";
+import { AIAssistant } from "@/components/AIAssistant";
+import { FamilyMemberMode } from "@/components/FamilyMemberMode";
+import { Research } from "@/components/Research";
+import { Testimonials } from "@/components/Testimonials";
+import { CallToAction } from "@/components/CallToAction";
+import { Footer } from "@/components/Footer";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+    <div className="min-h-screen">
       <Navigation />
       <Hero />
+      <div className="text-center py-8 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+        <Link 
+          to="/auth"
+          className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:shadow-lg transition-all"
+        >
+          Get Started - Join JANANI
+        </Link>
+      </div>
       <Features />
-      
-      {/* Dashboard CTA Section */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-pink-100 to-purple-100">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 sm:mb-6">
-            Experience All Features
-          </h2>
-          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
-            Try our comprehensive dashboard with facial recognition login, health questionnaire, workout plans, ultrasound scheduler, and family sharing features.
-          </p>
-          <Link 
-            to="/dashboard"
-            className="inline-flex items-center bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 space-x-2"
-          >
-            <span>🌸</span>
-            <span>Launch JANANI Dashboard</span>
-          </Link>
-        </div>
-      </section>
-
-      <AIExplanation />
-      <Testimonials />
+      <AIModelExplanation />
+      <SmartQuestionnaire />
+      <PCOSTracker />
+      <UltrasoundScheduler />
+      <FacialLogin />
+      <WorkoutWellness />
+      <SymptomAnalyzer />
+      <AIChatbot />
+      <AIAssistant />
+      <FamilyMemberMode />
       <Research />
+      <Testimonials />
       <CallToAction />
       <Footer />
-      <AIAssistant />
     </div>
   );
 };

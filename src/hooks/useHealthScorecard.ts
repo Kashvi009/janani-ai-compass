@@ -1,5 +1,7 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface HealthRecord {
   id: string;
@@ -44,38 +46,96 @@ export const useHealthScorecard = () => {
     weeklyGoal: 50,
     weeklyProgress: 0
   });
+  const [loading, setLoading] = useState(true);
 
-  // Simulated data - in real app, this would come from Supabase
   useEffect(() => {
-    // Initialize with sample data
-    const sampleRecord: HealthRecord = {
-      id: '1',
-      userId: 'user1',
-      bloodPressureSystolic: 120,
-      bloodPressureDiastolic: 80,
-      bloodSugarFasting: 90,
-      bloodSugarPostMeal: 140,
-      weight: 65,
-      bmi: 23.5,
-      symptoms: ['fatigue'],
-      recordedAt: new Date()
-    };
-
-    setHealthRecords([sampleRecord]);
-    setCurrentScore(calculateHealthScore(sampleRecord));
+    fetchUserData();
   }, []);
 
+  const fetchUserData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch health records
+      const { data: healthRecordsData, error: recordsError } = await supabase
+        .from('health_records')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('recorded_at', { ascending: false });
+
+      if (recordsError) {
+        console.error('Error fetching health records:', recordsError);
+      } else if (healthRecordsData) {
+        const formattedRecords = healthRecordsData.map(record => ({
+          id: record.id,
+          userId: record.user_id,
+          bloodPressureSystolic: record.blood_pressure_systolic || 120,
+          bloodPressureDiastolic: record.blood_pressure_diastolic || 80,
+          bloodSugarFasting: record.blood_sugar_fasting || 90,
+          bloodSugarPostMeal: record.blood_sugar_post_meal || 140,
+          weight: record.weight_kg || 65,
+          bmi: record.bmi || 23.5,
+          symptoms: [], // Will be fetched from symptom_logs
+          recordedAt: new Date(record.recorded_at)
+        }));
+        setHealthRecords(formattedRecords);
+      }
+
+      // Fetch latest health score
+      const { data: healthScoreData, error: scoreError } = await supabase
+        .from('health_scores')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('calculated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (scoreError && scoreError.code !== 'PGRST116') {
+        console.error('Error fetching health score:', scoreError);
+      } else if (healthScoreData) {
+        setCurrentScore({
+          totalScore: parseFloat(healthScoreData.total_score),
+          bloodPressureScore: healthScoreData.blood_pressure_score,
+          bloodSugarScore: healthScoreData.blood_sugar_score,
+          weightScore: healthScoreData.weight_score,
+          symptomScore: healthScoreData.symptom_score,
+          status: healthScoreData.status as 'Stable' | 'Caution' | 'Critical',
+          lastUpdated: new Date(healthScoreData.calculated_at)
+        });
+      }
+
+      // Fetch gamification data
+      const { data: pointsData, error: pointsError } = await supabase
+        .from('user_points')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (pointsError && pointsError.code !== 'PGRST116') {
+        console.error('Error fetching user points:', pointsError);
+      } else if (pointsData) {
+        setGamificationData({
+          totalPoints: pointsData.total_points,
+          dailyStreak: pointsData.daily_streak,
+          badges: pointsData.badges || [],
+          level: pointsData.level,
+          weeklyGoal: pointsData.weekly_goal,
+          weeklyProgress: pointsData.weekly_progress
+        });
+      }
+
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const calculateHealthScore = (record: HealthRecord): HealthScore => {
-    // Blood Pressure Score (1-10)
     const bpScore = calculateBPScore(record.bloodPressureSystolic, record.bloodPressureDiastolic);
-    
-    // Blood Sugar Score (1-10)
     const sugarScore = calculateSugarScore(record.bloodSugarFasting, record.bloodSugarPostMeal);
-    
-    // Weight/BMI Score (1-10)
     const weightScore = calculateWeightScore(record.bmi);
-    
-    // Symptom Score (1-10)
     const symptomScore = calculateSymptomScore(record.symptoms);
     
     const totalScore = (bpScore + sugarScore + weightScore + symptomScore) / 4;
@@ -139,61 +199,128 @@ export const useHealthScorecard = () => {
     return 2;
   };
 
-  const addHealthRecord = (record: Partial<HealthRecord>) => {
-    const newRecord: HealthRecord = {
-      id: Date.now().toString(),
-      userId: 'user1',
-      bloodPressureSystolic: record.bloodPressureSystolic || 120,
-      bloodPressureDiastolic: record.bloodPressureDiastolic || 80,
-      bloodSugarFasting: record.bloodSugarFasting || 90,
-      bloodSugarPostMeal: record.bloodSugarPostMeal || 140,
-      weight: record.weight || 65,
-      bmi: record.bmi || 23.5,
-      symptoms: record.symptoms || [],
-      recordedAt: new Date()
-    };
+  const addHealthRecord = async (record: Partial<HealthRecord>) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
-    setHealthRecords(prev => [...prev, newRecord]);
-    setCurrentScore(calculateHealthScore(newRecord));
-    
-    // Award points for tracking
-    setGamificationData(prev => ({
-      ...prev,
-      totalPoints: prev.totalPoints + 5,
-      weeklyProgress: Math.min(prev.weeklyProgress + 5, prev.weeklyGoal)
-    }));
+      const newRecord = {
+        user_id: user.id,
+        blood_pressure_systolic: record.bloodPressureSystolic || 120,
+        blood_pressure_diastolic: record.bloodPressureDiastolic || 80,
+        blood_sugar_fasting: record.bloodSugarFasting || 90,
+        blood_sugar_post_meal: record.bloodSugarPostMeal || 140,
+        weight_kg: record.weight || 65,
+        bmi: record.bmi || 23.5,
+      };
+
+      const { data, error } = await supabase
+        .from('health_records')
+        .insert([newRecord])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Create health record object for scoring
+      const healthRecord: HealthRecord = {
+        id: data.id,
+        userId: data.user_id,
+        bloodPressureSystolic: data.blood_pressure_systolic,
+        bloodPressureDiastolic: data.blood_pressure_diastolic,
+        bloodSugarFasting: data.blood_sugar_fasting,
+        bloodSugarPostMeal: data.blood_sugar_post_meal,
+        weight: data.weight_kg,
+        bmi: data.bmi,
+        symptoms: [],
+        recordedAt: new Date(data.recorded_at)
+      };
+
+      // Calculate and save health score
+      const newScore = calculateHealthScore(healthRecord);
+      
+      const { error: scoreError } = await supabase
+        .from('health_scores')
+        .insert([{
+          user_id: user.id,
+          total_score: newScore.totalScore,
+          blood_pressure_score: newScore.bloodPressureScore,
+          blood_sugar_score: newScore.bloodSugarScore,
+          weight_score: newScore.weightScore,
+          symptom_score: newScore.symptomScore,
+          status: newScore.status,
+        }]);
+
+      if (scoreError) throw scoreError;
+
+      // Award points
+      await awardPoints(5, 'health_record_added');
+
+      // Refresh data
+      await fetchUserData();
+
+      toast({
+        title: "Health Record Added!",
+        description: "Your health data has been saved and your score updated.",
+      });
+
+    } catch (error) {
+      console.error('Error adding health record:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save health record. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const awardPoints = (points: number, reason: string) => {
-    setGamificationData(prev => {
-      const newPoints = prev.totalPoints + points;
-      const newLevel = Math.floor(newPoints / 100) + 1;
-      const newBadges = [...prev.badges];
-      
-      // Award badges based on achievements
-      if (newPoints >= 100 && !newBadges.includes('Century Club')) {
-        newBadges.push('Century Club');
+  const awardPoints = async (points: number, reason: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: currentPoints, error: fetchError } = await supabase
+        .from('user_points')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error fetching current points:', fetchError);
+        return;
       }
-      if (prev.dailyStreak >= 7 && !newBadges.includes('Weekly Warrior')) {
-        newBadges.push('Weekly Warrior');
-      }
-      
-      return {
-        ...prev,
-        totalPoints: newPoints,
+
+      const newTotalPoints = (currentPoints?.total_points || 0) + points;
+      const newLevel = Math.floor(newTotalPoints / 100) + 1;
+      const newWeeklyProgress = Math.min((currentPoints?.weekly_progress || 0) + points, currentPoints?.weekly_goal || 50);
+
+      const updateData = {
+        total_points: newTotalPoints,
         level: newLevel,
-        badges: newBadges,
-        weeklyProgress: Math.min(prev.weeklyProgress + points, prev.weeklyGoal)
+        weekly_progress: newWeeklyProgress,
       };
-    });
+
+      const { error: updateError } = await supabase
+        .from('user_points')
+        .update(updateData)
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Error updating points:', updateError);
+      }
+    } catch (error) {
+      console.error('Error awarding points:', error);
+    }
   };
 
   return {
     healthRecords,
     currentScore,
     gamificationData,
+    loading,
     addHealthRecord,
     awardPoints,
-    calculateHealthScore
+    calculateHealthScore,
+    fetchUserData
   };
 };

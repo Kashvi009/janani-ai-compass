@@ -9,7 +9,227 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      health_records: {
+        Row: {
+          blood_pressure_diastolic: number | null
+          blood_pressure_systolic: number | null
+          blood_sugar_fasting: number | null
+          blood_sugar_post_meal: number | null
+          bmi: number | null
+          id: string
+          recorded_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          blood_pressure_diastolic?: number | null
+          blood_pressure_systolic?: number | null
+          blood_sugar_fasting?: number | null
+          blood_sugar_post_meal?: number | null
+          bmi?: number | null
+          id?: string
+          recorded_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          blood_pressure_diastolic?: number | null
+          blood_pressure_systolic?: number | null
+          blood_sugar_fasting?: number | null
+          blood_sugar_post_meal?: number | null
+          bmi?: number | null
+          id?: string
+          recorded_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      health_scores: {
+        Row: {
+          blood_pressure_score: number
+          blood_sugar_score: number
+          calculated_at: string
+          id: string
+          status: string
+          symptom_score: number
+          total_score: number
+          user_id: string
+          weight_score: number
+        }
+        Insert: {
+          blood_pressure_score: number
+          blood_sugar_score: number
+          calculated_at?: string
+          id?: string
+          status: string
+          symptom_score: number
+          total_score: number
+          user_id: string
+          weight_score: number
+        }
+        Update: {
+          blood_pressure_score?: number
+          blood_sugar_score?: number
+          calculated_at?: string
+          id?: string
+          status?: string
+          symptom_score?: number
+          total_score?: number
+          user_id?: string
+          weight_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          blood_type: string | null
+          created_at: string
+          doctor_name: string | null
+          doctor_phone: string | null
+          due_date: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          full_name: string | null
+          has_pcos: boolean | null
+          height_cm: number | null
+          id: string
+          pregnancy_week: number | null
+          updated_at: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          blood_type?: string | null
+          created_at?: string
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          due_date?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name?: string | null
+          has_pcos?: boolean | null
+          height_cm?: number | null
+          id: string
+          pregnancy_week?: number | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          blood_type?: string | null
+          created_at?: string
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          due_date?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name?: string | null
+          has_pcos?: boolean | null
+          height_cm?: number | null
+          id?: string
+          pregnancy_week?: number | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      symptom_logs: {
+        Row: {
+          id: string
+          notes: string | null
+          recorded_at: string
+          severity: number
+          symptom_type: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          recorded_at?: string
+          severity: number
+          symptom_type: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          recorded_at?: string
+          severity?: number
+          symptom_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "symptom_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_points: {
+        Row: {
+          badges: string[] | null
+          daily_streak: number
+          id: string
+          last_activity_date: string | null
+          level: number
+          total_points: number
+          user_id: string
+          weekly_goal: number
+          weekly_progress: number
+        }
+        Insert: {
+          badges?: string[] | null
+          daily_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          total_points?: number
+          user_id: string
+          weekly_goal?: number
+          weekly_progress?: number
+        }
+        Update: {
+          badges?: string[] | null
+          daily_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          total_points?: number
+          user_id?: string
+          weekly_goal?: number
+          weekly_progress?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
