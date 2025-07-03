@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { LoginSignup } from '../components/LoginSignup';
 import { FacialLogin } from '../components/FacialLogin';
@@ -7,11 +6,12 @@ import { WorkoutWellness } from '../components/WorkoutWellness';
 import { UltrasoundScheduler } from '../components/UltrasoundScheduler';
 import { AIModelExplanation } from '../components/AIModelExplanation';
 import { FamilyMemberMode } from '../components/FamilyMemberMode';
+import { HealthScorecard } from '../components/HealthScorecard';
 import { AIAssistant } from '../components/AIAssistant';
-import { Heart, Home, Calendar, Dumbbell, Brain, Users, LogIn, FileText, LogOut, User } from 'lucide-react';
+import { Heart, Home, Calendar, Dumbbell, Brain, Users, LogIn, FileText, LogOut, User, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-type DashboardView = 'home' | 'login' | 'questionnaire' | 'workout' | 'ultrasound' | 'ai-explanation' | 'family';
+type DashboardView = 'home' | 'login' | 'questionnaire' | 'workout' | 'ultrasound' | 'ai-explanation' | 'family' | 'health-scorecard';
 
 export const Dashboard = () => {
   const [activeView, setActiveView] = useState<DashboardView>('home');
@@ -21,6 +21,7 @@ export const Dashboard = () => {
   const navigationItems = [
     { id: 'home', label: 'Dashboard', icon: Home },
     { id: 'login', label: 'Facial Login', icon: LogIn },
+    { id: 'health-scorecard', label: 'Health Scorecard', icon: Activity },
     { id: 'questionnaire', label: 'Health Profile', icon: FileText },
     { id: 'workout', label: 'Workout & Wellness', icon: Dumbbell },
     { id: 'ultrasound', label: 'Ultrasound Scheduler', icon: Calendar },
@@ -38,7 +39,6 @@ export const Dashboard = () => {
     setActiveView('home');
   };
 
-  // Show login modal for non-authenticated users trying to access features
   const handleFeatureAccess = (viewId: DashboardView) => {
     if (!isAuthenticated && viewId !== 'home') {
       setShowLoginModal(true);
@@ -55,6 +55,8 @@ export const Dashboard = () => {
     switch (activeView) {
       case 'login':
         return <FacialLogin />;
+      case 'health-scorecard':
+        return <HealthScorecard />;
       case 'questionnaire':
         return <SmartQuestionnaire />;
       case 'workout':
@@ -130,7 +132,7 @@ export const Dashboard = () => {
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
                     Your Pregnancy Journey
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-6">
                     <div className="text-center">
                       <div className="bg-pink-100 rounded-full p-3 sm:p-4 w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 flex items-center justify-center">
                         <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-pink-600" />
@@ -152,6 +154,13 @@ export const Dashboard = () => {
                       <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-1 sm:mb-2">5 Times</h3>
                       <p className="text-xs sm:text-sm lg:text-base text-gray-600">Workouts this week</p>
                     </div>
+                    <div className="text-center">
+                      <div className="bg-green-100 rounded-full p-3 sm:p-4 w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 flex items-center justify-center">
+                        <Activity className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+                      </div>
+                      <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-1 sm:mb-2">8.5/10</h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-gray-600">Health score</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -165,6 +174,8 @@ export const Dashboard = () => {
     switch (id) {
       case 'login':
         return 'Secure facial recognition login with biometric authentication and privacy protection.';
+      case 'health-scorecard':
+        return 'Track your health metrics with AI-powered scoring and gamified wellness rewards.';
       case 'questionnaire':
         return 'Complete health profile setup with personalized questions and data encryption.';
       case 'workout':
