@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { Heart, Activity, AlertTriangle, CheckCircle, Trophy, Star, Calendar, Plus, TrendingUp, LogOut } from 'lucide-react';
+import { Heart, Activity, AlertTriangle, CheckCircle, Trophy, Star, Calendar, Plus, TrendingUp, LogOut, Target, Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useHealthScorecard } from '@/hooks/useHealthScorecard';
+import { useNashHealthScore } from '@/hooks/useNashHealthScore';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -27,6 +28,8 @@ export const HealthScorecard = () => {
     loading,
     addHealthRecord 
   } = useHealthScorecard();
+  
+  const { nashResult, healthFactors, updateFactors } = useNashHealthScore();
 
   const [healthRecord, setHealthRecord] = useState<Partial<HealthRecord>>({
     bloodPressureSystolic: 120,
@@ -153,59 +156,139 @@ export const HealthScorecard = () => {
         {/* Scorecard Tab */}
         {activeTab === 'scorecard' && (
           <div className="space-y-6">
-            {/* Overall Health Score */}
+            {/* Nash Equilibrium Health Score */}
             <div className="bg-white rounded-3xl p-6 shadow-xl">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Overall Health</h2>
-                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${getStatusColor(displayScore.status)}`}>
-                  {getStatusIcon(displayScore.status)}
-                  <span className="font-semibold">{displayScore.status}</span>
+                <div className="flex items-center space-x-3">
+                  <h2 className="text-2xl font-bold text-gray-800">Nash Health Balance</h2>
+                  <div className="text-3xl">{nashResult.flowerLevel}</div>
+                </div>
+                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${getStatusColor(nashResult.status)}`}>
+                  {getStatusIcon(nashResult.status)}
+                  <span className="font-semibold">{nashResult.status}</span>
                 </div>
               </div>
               
               <div className="text-center mb-6">
                 <div className="text-6xl font-bold text-gray-800 mb-2">
-                  {displayScore.totalScore}
+                  {nashResult.finalScore}
                   <span className="text-2xl text-gray-500">/10</span>
                 </div>
-                <p className="text-gray-600">Your current health score</p>
+                <p className="text-gray-600 mb-2">Nash Equilibrium Health Score</p>
+                <div className="flex items-center justify-center space-x-4 text-sm">
+                  <span className={`px-3 py-1 rounded-full ${
+                    nashResult.balanceStatus === 'Harmonious' ? 'bg-green-100 text-green-700' :
+                    nashResult.balanceStatus === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {nashResult.balanceStatus} Balance
+                  </span>
+                  <span className="flex items-center space-x-1 text-purple-600">
+                    <Target className="h-4 w-4" />
+                    <span>Equilibrium: {nashResult.equilibriumFactor}</span>
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Health Factor Breakdown */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-pink-50 rounded-2xl p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Blood Pressure</h3>
-                  <div className="text-2xl font-bold text-pink-600">{displayScore.bloodPressureScore}/10</div>
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <Heart className="h-4 w-4 mr-2 text-pink-500" />
+                    Symptoms
+                  </h3>
+                  <div className="text-2xl font-bold text-pink-600">{healthFactors.symptomScore}/10</div>
+                  <div className="w-full bg-pink-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-pink-500 h-2 rounded-full transition-all"
+                      style={{ width: `${healthFactors.symptomScore * 10}%` }}
+                    />
+                  </div>
                 </div>
+                
                 <div className="bg-purple-50 rounded-2xl p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Blood Sugar</h3>
-                  <div className="text-2xl font-bold text-purple-600">{displayScore.bloodSugarScore}/10</div>
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <Activity className="h-4 w-4 mr-2 text-purple-500" />
+                    Vitals
+                  </h3>
+                  <div className="text-2xl font-bold text-purple-600">{healthFactors.vitalScore}/10</div>
+                  <div className="w-full bg-purple-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-purple-500 h-2 rounded-full transition-all"
+                      style={{ width: `${healthFactors.vitalScore * 10}%` }}
+                    />
+                  </div>
                 </div>
+                
                 <div className="bg-blue-50 rounded-2xl p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Weight/BMI</h3>
-                  <div className="text-2xl font-bold text-blue-600">{displayScore.weightScore}/10</div>
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <Zap className="h-4 w-4 mr-2 text-blue-500" />
+                    Activity
+                  </h3>
+                  <div className="text-2xl font-bold text-blue-600">{healthFactors.activityScore}/10</div>
+                  <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all"
+                      style={{ width: `${healthFactors.activityScore * 10}%` }}
+                    />
+                  </div>
                 </div>
+                
                 <div className="bg-green-50 rounded-2xl p-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Symptoms</h3>
-                  <div className="text-2xl font-bold text-green-600">{displayScore.symptomScore}/10</div>
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <Star className="h-4 w-4 mr-2 text-green-500" />
+                    Nutrition
+                  </h3>
+                  <div className="text-2xl font-bold text-green-600">{healthFactors.nutritionScore}/10</div>
+                  <div className="w-full bg-green-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-green-500 h-2 rounded-full transition-all"
+                      style={{ width: `${healthFactors.nutritionScore * 10}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="bg-orange-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <Trophy className="h-4 w-4 mr-2 text-orange-500" />
+                    PCOS
+                  </h3>
+                  <div className="text-2xl font-bold text-orange-600">{healthFactors.pcosScore}/10</div>
+                  <div className="w-full bg-orange-200 rounded-full h-2 mt-2">
+                    <div 
+                      className="bg-orange-500 h-2 rounded-full transition-all"
+                      style={{ width: `${healthFactors.pcosScore * 10}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Recommendations */}
+            {/* Nash-Inspired Recommendations */}
             <div className="bg-white rounded-3xl p-6 shadow-xl">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Recommendations</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <Target className="h-5 w-5 mr-2 text-purple-500" />
+                Nash Equilibrium Insights
+              </h3>
               <div className="space-y-3">
-                {displayScore.status === 'Critical' && (
-                  <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
-                    <p className="text-red-800 font-medium">⚠️ Please consult your healthcare provider immediately</p>
+                {nashResult.recommendations.map((rec, index) => (
+                  <div key={index} className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-4">
+                    <p className="text-gray-800 font-medium">{rec}</p>
+                  </div>
+                ))}
+                
+                {nashResult.balanceStatus === 'Harmonious' && (
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4">
+                    <p className="text-green-800 font-medium">🌸 Perfect health equilibrium! All factors are working in harmony.</p>
                   </div>
                 )}
-                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-                  <p className="text-blue-800">🌸 Continue tracking your daily symptoms</p>
-                </div>
-                <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-                  <p className="text-green-800">💧 Stay hydrated and maintain gentle exercise</p>
-                </div>
+              </div>
+              
+              <div className="mt-4 p-4 bg-gray-50 rounded-2xl">
+                <p className="text-sm text-gray-600">
+                  <strong>Nash Equilibrium in Health:</strong> Just like in game theory, your health factors achieve balance when 
+                  no single area can improve without affecting others. This score rewards overall harmony over perfection in just one area.
+                </p>
               </div>
             </div>
           </div>
