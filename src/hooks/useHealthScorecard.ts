@@ -95,7 +95,7 @@ export const useHealthScorecard = () => {
         console.error('Error fetching health score:', scoreError);
       } else if (healthScoreData) {
         setCurrentScore({
-          totalScore: parseFloat(healthScoreData.total_score),
+          totalScore: healthScoreData.total_score,
           bloodPressureScore: healthScoreData.blood_pressure_score,
           bloodSugarScore: healthScoreData.blood_sugar_score,
           weightScore: healthScoreData.weight_score,
