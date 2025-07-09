@@ -53,26 +53,22 @@ export const useNashHealthScore = () => {
     ];
 
     // Base weighted score
-    const baseScore = 
+    const rawScore = 
       factors.symptomScore * NASH_WEIGHTS.symptom +
       factors.vitalScore * NASH_WEIGHTS.vital +
       factors.activityScore * NASH_WEIGHTS.activity +
       factors.nutritionScore * NASH_WEIGHTS.nutrition +
       factors.pcosScore * NASH_WEIGHTS.pcos;
 
-    // Equilibrium factor - measures balance between health areas
+    // Nash-like balancing penalty: discourage imbalance
     const standardDev = calculateStandardDeviation(scores);
-    const equilibriumFactor = Math.max(0, 3 - standardDev); // Higher = more balanced
-    
-    // Nash-inspired penalty for imbalance - no single factor can dominate
-    const balancePenalty = standardDev * 0.25;
-    
-    // Cross-factor influence - symptoms and vitals heavily influence each other
-    const vitalSymptomSynergy = Math.min(factors.vitalScore, factors.symptomScore) * 0.1;
+    const penalty = standardDev * 0.3; // Apply penalty for unbalanced health
     
     // Final score with Nash equilibrium adjustments
-    let finalScore = baseScore - balancePenalty + vitalSymptomSynergy;
-    finalScore = Math.max(0, Math.min(10, finalScore));
+    const finalScore = Math.max(0, Math.min(10, rawScore - penalty));
+    
+    // Equilibrium factor - measures balance between health areas
+    const equilibriumFactor = Math.max(0, 3 - standardDev); // Higher = more balanced
 
     // Determine status
     let status: 'Stable' | 'Caution' | 'Critical' = 'Stable';
