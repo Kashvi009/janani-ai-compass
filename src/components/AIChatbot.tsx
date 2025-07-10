@@ -1,6 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Heart, AlertCircle, Calendar, Pill } from 'lucide-react';
+import { useProfile } from '@/hooks/useProfile';
+import { useNashHealthScore } from '@/hooks/useNashHealthScore';
+import { useSymptomLogger } from '@/hooks/useSymptomLogger';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -11,10 +15,32 @@ interface Message {
 }
 
 export const AIChatbot = () => {
+  const { profile } = useProfile();
+  const { nashResult } = useNashHealthScore();
+  const { symptoms } = useSymptomLogger();
+  
+  const getPersonalizedGreeting = () => {
+    if (!profile) return "Hello! I'm your JANANI AI companion. I'm here to help you with pregnancy-related questions, symptom analysis, health guidance, and PCOS/PCOD support. How can I assist you today?";
+    
+    const name = profile.full_name ? ` ${profile.full_name.split(' ')[0]}` : '';
+    let greeting = `Hello${name}! 💕 I'm your personal JANANI AI companion.`;
+    
+    if (profile.pregnancy_week) {
+      greeting += ` I see you're at ${profile.pregnancy_week} weeks - such an exciting journey!`;
+    }
+    
+    if (profile.has_pcos) {
+      greeting += ` I'm here to support you with PCOS management along with your pregnancy care.`;
+    }
+    
+    greeting += " How can I help you today?";
+    return greeting;
+  };
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your JANANI AI companion. I'm here to help you with pregnancy-related questions, symptom analysis, health guidance, and PCOS/PCOD support. How can I assist you today?",
+      text: getPersonalizedGreeting(),
       sender: 'bot',
       timestamp: new Date(),
       type: 'general'
@@ -23,6 +49,19 @@ export const AIChatbot = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Update greeting when profile loads
+  useEffect(() => {
+    if (profile && messages.length === 1) {
+      setMessages([{
+        id: '1',
+        text: getPersonalizedGreeting(),
+        sender: 'bot',
+        timestamp: new Date(),
+        type: 'general'
+      }]);
+    }
+  }, [profile]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,36 +118,134 @@ export const AIChatbot = () => {
 
   const generateAIResponse = (userMessage: string) => {
     const analysis = analyzeSymptoms(userMessage);
-    
-    if (analysis.isSymptom) {
-      return {
-        text: `I've analyzed your symptoms. ${analysis.advice} Would you like me to help you schedule a doctor's appointment or provide more specific guidance?`,
-        type: 'symptom' as const
-      };
-    }
-
-    // General pregnancy and PCOS questions
     const lowerMessage = userMessage.toLowerCase();
     
+    // Check for health score questions
+    if (lowerMessage.includes('health score') || lowerMessage.includes('how am i doing') || lowerMessage.includes('my health')) {
+      if (nashResult.finalScore > 0) {
+        let response = `Your current health score is ${nashResult.finalScore}/10 (${nashResult.status}) ${nashResult.flowerLevel}. `;
+        
+        if (nashResult.status === 'Critical') {
+          response += "I'm concerned about some indicators. Please consider scheduling a doctor's appointment soon. ";
+        } else if (nashResult.status === 'Caution') {
+          response += "There are some areas we can improve together. ";
+        } else {
+          response += "You're doing great! Keep up the good work. ";
+        }
+        
+        if (nashResult.recommendations.length > 0) {
+          response += `\n\nMy recommendations: ${nashResult.recommendations[0]}`;
+        }
+        
+        if (profile?.pregnancy_week) {
+          response += `At ${profile.pregnancy_week} weeks, `;
+          if (profile.pregnancy_week <= 12) {
+            response += "focusing on nutrition and managing symptoms is key.";
+          } else if (profile.pregnancy_week <= 28) {
+            response += "maintaining regular check-ups and staying active is important.";
+          } else {
+            response += "preparing for delivery and monitoring closely is essential.";
+          }
+        }
+        
+        return { text: response, type: 'general' as const };
+      }
+      return { text: "I'd love to help with your health assessment! Please log some symptoms and vitals first so I can give you personalized insights.", type: 'general' as const };
+    }
+
+    // Personalized symptom tracking
+    if (lowerMessage.includes('symptoms') || lowerMessage.includes('track') || lowerMessage.includes('log')) {
+      const recentSymptoms = symptoms.slice(0, 3);
+      let response = "Symptom tracking is so important! ";
+      
+      if (recentSymptoms.length > 0) {
+        response += `I see you've logged symptoms recently: ${recentSymptoms.map(s => s.symptom_type).join(', ')}. `;
+      }
+      
+      if (profile?.has_pcos) {
+        response += "With PCOS, tracking irregular periods, mood changes, and weight fluctuations is especially helpful. ";
+      }
+      
+      response += "Would you like me to guide you through logging symptoms or analyzing patterns?";
+      return { text: response, type: 'symptom' as const };
+    }
+    
+    if (analysis.isSymptom) {
+      let response = `I've analyzed your symptoms. ${analysis.advice}`;
+      
+      if (profile?.doctor_name) {
+        response += ` I recommend discussing this with Dr. ${profile.doctor_name}.`;
+      } else {
+        response += ` Would you like help finding a qualified healthcare provider?`;
+      }
+      
+      return { text: response, type: 'symptom' as const };
+    }
+
+    // General pregnancy and PCOS questions with personalization
+    
     if (lowerMessage.includes('pcos') || lowerMessage.includes('pcod')) {
-      return {
-        text: "PCOS/PCOD affects many women and can impact fertility and pregnancy. I can help you track symptoms, suggest lifestyle modifications, and guide you on when to seek medical care. Use our PCOS tracker tab for detailed assessment. What specific PCOS concerns do you have?",
-        type: 'general' as const
-      };
+      let response = "";
+      if (profile?.has_pcos) {
+        response = "I'm here to support your PCOS journey! Since you've indicated you have PCOS, ";
+        if (profile.pregnancy_week) {
+          response += `managing it during pregnancy (currently at ${profile.pregnancy_week} weeks) requires special attention. `;
+        }
+        response += "Regular monitoring, a balanced diet, and staying active are key. ";
+      } else {
+        response = "PCOS/PCOD affects many women and can impact fertility and pregnancy. ";
+      }
+      response += "I can help you track symptoms, suggest lifestyle modifications, and guide you on when to seek medical care. What specific PCOS concerns do you have?";
+      return { text: response, type: 'general' as const };
     }
 
     if (lowerMessage.includes('trimester') || lowerMessage.includes('week')) {
-      return {
-        text: "Each trimester brings unique changes. First trimester focuses on organ development, second trimester is often the most comfortable, and third trimester prepares for birth. What specific week or trimester information do you need?",
-        type: 'general' as const
-      };
+      let response = "";
+      if (profile?.pregnancy_week) {
+        const trimester = profile.pregnancy_week <= 12 ? 'first' : profile.pregnancy_week <= 28 ? 'second' : 'third';
+        response = `You're currently at ${profile.pregnancy_week} weeks in your ${trimester} trimester! `;
+        
+        if (trimester === 'first') {
+          response += "This is such an important time for organ development. Focus on taking prenatal vitamins, eating well, and managing any morning sickness. ";
+        } else if (trimester === 'second') {
+          response += "Welcome to the 'golden period'! Many women feel their best now. It's a great time for exercise and preparing the nursery. ";
+        } else {
+          response += "You're in the final stretch! Focus on rest, preparing for delivery, and monitoring baby's movements closely. ";
+        }
+        
+        if (profile.due_date) {
+          const dueDate = new Date(profile.due_date);
+          const today = new Date();
+          const daysLeft = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysLeft > 0) {
+            response += `You have approximately ${daysLeft} days until your due date!`;
+          }
+        }
+      } else {
+        response = "Each trimester brings unique changes. First trimester focuses on organ development, second trimester is often the most comfortable, and third trimester prepares for birth. What specific week or trimester information do you need?";
+      }
+      return { text: response, type: 'general' as const };
     }
 
     if (lowerMessage.includes('diet') || lowerMessage.includes('food') || lowerMessage.includes('eat')) {
-      return {
-        text: "Nutrition is crucial during pregnancy! Focus on folate-rich foods, lean proteins, dairy, and plenty of fruits and vegetables. Avoid raw fish, unpasteurized dairy, and limit caffeine. For PCOS, consider a low glycemic index diet. Would you like a personalized meal plan?",
-        type: 'general' as const
-      };
+      let response = "Nutrition is crucial during pregnancy! Focus on folate-rich foods, lean proteins, dairy, and plenty of fruits and vegetables. Avoid raw fish, unpasteurized dairy, and limit caffeine. ";
+      
+      if (profile?.has_pcos) {
+        response += "With PCOS, a low glycemic index diet can help manage insulin resistance and hormone levels. ";
+      }
+      
+      if (profile?.pregnancy_week) {
+        if (profile.pregnancy_week <= 12) {
+          response += "In your first trimester, small frequent meals can help with nausea. ";
+        } else if (profile.pregnancy_week <= 28) {
+          response += "In your second trimester, focus on iron and calcium-rich foods. ";
+        } else {
+          response += "In your third trimester, ensure adequate protein and stay hydrated. ";
+        }
+      }
+      
+      response += "Would you like a personalized meal plan based on your current stage?";
+      return { text: response, type: 'general' as const };
     }
 
     if (lowerMessage.includes('exercise') || lowerMessage.includes('workout') || lowerMessage.includes('yoga')) {
@@ -119,10 +256,18 @@ export const AIChatbot = () => {
     }
 
     if (lowerMessage.includes('doctor') || lowerMessage.includes('appointment')) {
-      return {
-        text: "I can help you find qualified gynecologists and maternal specialists in your area. I can also help you prepare questions for your next appointment. What type of healthcare provider are you looking for?",
-        type: 'general' as const
-      };
+      let response = "";
+      if (profile?.doctor_name) {
+        response = `I see you're working with Dr. ${profile.doctor_name}. `;
+        if (profile.doctor_phone) {
+          response += `You can reach them at ${profile.doctor_phone}. `;
+        }
+        response += "Would you like help preparing questions for your next appointment? ";
+      } else {
+        response = "I can help you find qualified gynecologists and maternal specialists in your area. ";
+      }
+      response += "What type of healthcare support do you need?";
+      return { text: response, type: 'general' as const };
     }
 
     // Default response
