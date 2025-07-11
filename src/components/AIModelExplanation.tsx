@@ -88,7 +88,7 @@ export const AIModelExplanation = () => {
           <div className="hidden lg:block">
             <div className="flex items-center justify-between mb-8">
               {steps.map((step, index) => (
-                <React.Fragment key={step.id}>
+                <div key={step.id} className="flex items-center">
                   <div
                     className={`flex flex-col items-center cursor-pointer transition-all duration-300 ${
                       currentStep === index ? 'scale-110' : 'hover:scale-105'
@@ -107,7 +107,7 @@ export const AIModelExplanation = () => {
                   {index < steps.length - 1 && (
                     <ArrowRight className="h-6 w-6 text-pink-400 mx-4" />
                   )}
-                </React.Fragment>
+                </div>
               ))}
             </div>
           </div>
