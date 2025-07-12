@@ -73,7 +73,7 @@ export const Navigation = () => {
                   <span className="hidden sm:inline">Login</span>
                 </Link>
                 <Link 
-                  to="/dashboard"
+                  to="/auth"
                   className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-2 sm:px-4 lg:px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 font-medium text-xs sm:text-sm lg:text-base flex items-center space-x-1"
                 >
                   <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -143,7 +143,7 @@ export const Navigation = () => {
                     <span>Login</span>
                   </Link>
                   <Link 
-                    to="/dashboard"
+                    to="/auth"
                     className="block w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-full font-medium hover:shadow-lg transition-all duration-200 text-center text-sm"
                     onClick={() => setIsMenuOpen(false)}
                   >
