@@ -58,18 +58,16 @@ const App = () => {
           <Routes>
             <Route 
               path="/" 
-              element={
-                user ? <Dashboard /> : <Index />
-              } 
+              element={<Index />} 
             />
             <Route 
-              path="/auth" 
+              path="/dashboard" 
               element={
                 user ? <Dashboard /> : <LoginSignup onLoginSuccess={handleLoginSuccess} />
               } 
             />
             <Route 
-              path="/dashboard" 
+              path="/auth" 
               element={
                 user ? <Dashboard /> : <LoginSignup onLoginSuccess={handleLoginSuccess} />
               } 

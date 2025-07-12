@@ -11,7 +11,7 @@ import { WorkoutWellness } from "@/components/WorkoutWellness";
 import { SymptomAnalyzer } from "@/components/SymptomAnalyzer";
 import { AIChatbot } from "@/components/AIChatbot";
 import { AIAssistant } from "@/components/AIAssistant";
-import { FamilyMemberMode } from "@/components/FamilyMemberMode";
+
 import { Research } from "@/components/Research";
 import { Testimonials } from "@/components/Testimonials";
 import { CallToAction } from "@/components/CallToAction";
@@ -41,7 +41,7 @@ const Index = () => {
       <SymptomAnalyzer />
       <AIChatbot />
       <AIAssistant />
-      <FamilyMemberMode />
+      
       <Research />
       <Testimonials />
       <CallToAction />

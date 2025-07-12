@@ -1,12 +1,20 @@
 
 import React, { useState } from 'react';
-import { Heart, Menu, X, LogIn, UserPlus } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Heart, Menu, X, LogIn, UserPlus, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isDashboard = location.pathname === '/dashboard';
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+    setIsMenuOpen(false);
+  };
 
   const navigationItems = [
     { href: '#features', label: 'Features' },
@@ -39,13 +47,22 @@ export const Navigation = () => {
               </a>
             ))}
             {isDashboard ? (
-              <Link 
-                to="/"
-                className="text-gray-700 hover:text-pink-500 transition-colors duration-200 font-medium text-sm lg:text-base flex items-center space-x-1"
-              >
-                <Heart className="h-4 w-4" />
-                <span>Home</span>
-              </Link>
+              <div className="flex items-center space-x-2 lg:space-x-3">
+                <a 
+                  href="/"
+                  className="text-gray-700 hover:text-pink-500 transition-colors duration-200 font-medium text-sm lg:text-base flex items-center space-x-1 px-3 py-2 rounded-full hover:bg-pink-50"
+                >
+                  <Heart className="h-4 w-4" />
+                  <span>Website</span>
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-pink-500 transition-colors duration-200 font-medium text-sm lg:text-base px-3 py-2 rounded-full hover:bg-pink-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
             ) : (
               <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
                 <Link 
@@ -98,14 +115,23 @@ export const Navigation = () => {
                 </a>
               ))}
               {isDashboard ? (
-                <Link 
-                  to="/"
-                  className="block py-3 px-2 text-gray-700 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200 font-medium text-sm flex items-center space-x-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Heart className="h-4 w-4" />
-                  <span>Back to Home</span>
-                </Link>
+                <div className="space-y-2">
+                  <a 
+                    href="/"
+                    className="block py-3 px-2 text-gray-700 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200 font-medium text-sm flex items-center space-x-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Heart className="h-4 w-4" />
+                    <span>Back to Website</span>
+                  </a>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left py-3 px-2 text-gray-700 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200 font-medium text-sm flex items-center space-x-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
               ) : (
                 <div className="space-y-2 pt-2 border-t border-pink-100">
                   <Link 
