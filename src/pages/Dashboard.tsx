@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { Home, User, Activity, Heart, Bot, Calendar, Baby, TrendingUp, Trophy, Target, Star } from 'lucide-react';
+import { Home, User, Activity, Heart, Bot, Calendar, Baby, TrendingUp, Trophy, Target, Star, ArrowLeft, Users, Sparkles, BookOpen, Microscope } from 'lucide-react';
+import { Navigation } from "@/components/Navigation";
 import { HealthScorecard } from "@/components/HealthScorecard";
 import { SymptomTracker } from "@/components/SymptomTracker";
 import { PersonalizedAIAssistant } from "@/components/PersonalizedAIAssistant";
 import { ProfileEditor } from "@/components/ProfileEditor";
+import { FamilyMemberMode } from "@/components/FamilyMemberMode";
+import { Features } from "@/components/Features";
+import { AIModelExplanation } from "@/components/AIModelExplanation";
+import { Research } from "@/components/Research";
+import { Testimonials } from "@/components/Testimonials";
 import { useProfile } from "@/hooks/useProfile";
 import { useNashHealthScore } from "@/hooks/useNashHealthScore";
 import { useGameification } from "@/hooks/useGameification";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'health' | 'symptoms' | 'ai'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'health' | 'symptoms' | 'ai' | 'family' | 'features' | 'research' | 'stories'>('overview');
   const { profile } = useProfile();
   const { nashResult } = useNashHealthScore();
   const { userPoints } = useGameification();
@@ -19,12 +26,28 @@ const Dashboard = () => {
     { id: 'profile', label: 'Profile', icon: User, description: 'Personal information' },
     { id: 'health', label: 'Health Score', icon: Activity, description: 'Nash equilibrium analysis' },
     { id: 'symptoms', label: 'Symptoms', icon: Heart, description: 'Track & analyze patterns' },
-    { id: 'ai', label: 'AI Assistant', icon: Bot, description: 'Personalized guidance' }
+    { id: 'ai', label: 'AI Assistant', icon: Bot, description: 'Personalized guidance' },
+    { id: 'family', label: 'Family Mode', icon: Users, description: 'Care for loved ones' },
+    { id: 'features', label: 'Features', icon: Sparkles, description: 'Explore AI technology' },
+    { id: 'research', label: 'Research', icon: Microscope, description: 'Trusted insights' },
+    { id: 'stories', label: 'Stories', icon: BookOpen, description: 'Inspiring journeys' }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 py-6 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <Navigation />
+      <div className="pt-20 pb-6 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Back to Website Button */}
+          <div className="mb-6">
+            <Link 
+              to="/"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-gray-700 hover:text-pink-600 border border-pink-100"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Back to Main Website</span>
+            </Link>
+          </div>
         {/* Header with personalized greeting */}
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold mb-2">
@@ -90,23 +113,23 @@ const Dashboard = () => {
 
         {/* Navigation Tabs */}
         <div className="bg-white rounded-3xl p-2 mb-8 shadow-xl">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 flex flex-col items-center justify-center space-y-2 py-4 px-3 rounded-xl transition-all text-center ${
+                  className={`flex-1 flex flex-col items-center justify-center space-y-1 py-3 px-2 rounded-xl transition-all text-center ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
                       : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   <div>
-                    <span className="text-sm font-medium block">{tab.label}</span>
-                    <span className={`text-xs ${activeTab === tab.id ? 'text-pink-100' : 'text-gray-400'}`}>
+                    <span className="text-xs sm:text-sm font-medium block">{tab.label}</span>
+                    <span className={`text-xs hidden sm:block ${activeTab === tab.id ? 'text-pink-100' : 'text-gray-400'}`}>
                       {tab.description}
                     </span>
                   </div>
@@ -199,6 +222,16 @@ const Dashboard = () => {
           {activeTab === 'health' && <HealthScorecard />}
           {activeTab === 'symptoms' && <SymptomTracker />}
           {activeTab === 'ai' && <PersonalizedAIAssistant />}
+          {activeTab === 'family' && <FamilyMemberMode />}
+          {activeTab === 'features' && (
+            <div className="space-y-8">
+              <Features />
+              <AIModelExplanation />
+            </div>
+          )}
+          {activeTab === 'research' && <Research />}
+          {activeTab === 'stories' && <Testimonials />}
+        </div>
         </div>
       </div>
     </div>

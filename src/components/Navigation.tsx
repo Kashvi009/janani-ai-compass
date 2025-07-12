@@ -47,17 +47,21 @@ export const Navigation = () => {
                 <span>Home</span>
               </Link>
             ) : (
-              <div className="flex items-center space-x-2 lg:space-x-3">
-                <button className="flex items-center space-x-1 text-gray-700 hover:text-pink-500 transition-colors duration-200 font-medium text-sm lg:text-base px-3 py-2 rounded-full hover:bg-pink-50">
-                  <LogIn className="h-4 w-4" />
-                  <span>Login</span>
-                </button>
+              <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
+                <Link 
+                  to="/auth"
+                  className="flex items-center space-x-1 text-gray-700 hover:text-pink-500 transition-colors duration-200 font-medium text-xs sm:text-sm lg:text-base px-2 sm:px-3 py-2 rounded-full hover:bg-pink-50"
+                >
+                  <LogIn className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Login</span>
+                </Link>
                 <Link 
                   to="/dashboard"
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 lg:px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 font-medium text-sm lg:text-base flex items-center space-x-1"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-2 sm:px-4 lg:px-6 py-2 rounded-full hover:shadow-lg transition-all duration-200 font-medium text-xs sm:text-sm lg:text-base flex items-center space-x-1"
                 >
-                  <UserPlus className="h-4 w-4" />
-                  <span>Start Journey</span>
+                  <UserPlus className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Start Journey</span>
+                  <span className="sm:hidden">Start</span>
                 </Link>
               </div>
             )}
@@ -104,13 +108,14 @@ export const Navigation = () => {
                 </Link>
               ) : (
                 <div className="space-y-2 pt-2 border-t border-pink-100">
-                  <button 
+                  <Link 
+                    to="/auth"
                     className="w-full text-left py-2 px-2 text-gray-700 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200 font-medium text-sm flex items-center space-x-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <LogIn className="h-4 w-4" />
                     <span>Login</span>
-                  </button>
+                  </Link>
                   <Link 
                     to="/dashboard"
                     className="block w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 px-4 rounded-full font-medium hover:shadow-lg transition-all duration-200 text-center text-sm"
