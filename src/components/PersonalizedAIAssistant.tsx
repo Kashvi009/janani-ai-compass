@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Heart, Activity, Target, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useProfile } from '@/hooks/useProfile';
-import { useNashHealthScore } from '@/hooks/useNashHealthScore';
+import { useHealthScore } from '@/hooks/useHealthScore';
 import { useSymptomLogger } from '@/hooks/useSymptomLogger';
 import { useGameification } from '@/hooks/useGameification';
 
@@ -32,7 +32,7 @@ export const PersonalizedAIAssistant = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { profile } = useProfile();
-  const { nashResult, healthFactors } = useNashHealthScore();
+  const { healthResult, healthFactors } = useHealthScore();
   const { symptoms } = useSymptomLogger();
   const { userPoints } = useGameification();
 
@@ -63,8 +63,8 @@ export const PersonalizedAIAssistant = () => {
     
     const name = profile.full_name || 'Beautiful Mama';
     const week = profile.pregnancy_week;
-    const healthScore = nashResult.finalScore;
-    const status = nashResult.status;
+    const healthScore = healthResult.finalScore;
+    const status = healthResult.status;
     
     let welcome = `🌸 Hello ${name}! `;
     
@@ -137,9 +137,9 @@ export const PersonalizedAIAssistant = () => {
       name: profile?.full_name || 'Beautiful Mama',
       pregnancyWeek: profile?.pregnancy_week || undefined,
       hasPCOS: profile?.has_pcos || false,
-      currentHealthScore: nashResult.finalScore,
+      currentHealthScore: healthResult.finalScore,
       recentSymptoms: symptoms.slice(0, 3).map(s => s.symptom_type),
-      balanceStatus: nashResult.balanceStatus,
+      balanceStatus: healthResult.balanceStatus,
       gamificationLevel: userPoints?.level || 1,
       totalPoints: userPoints?.total_points || 0
     };
@@ -188,26 +188,26 @@ export const PersonalizedAIAssistant = () => {
     let response = `${name}, let's talk about your health balance! `;
     
     if (currentHealthScore >= 9) {
-      response += `Your Nash Health Score of ${currentHealthScore}/10 is absolutely amazing! 🌺 You've achieved beautiful harmony across all health areas. `;
+      response += `Your Health Score of ${currentHealthScore}/10 is absolutely amazing! 🌺 You've achieved beautiful harmony across all health areas. `;
     } else if (currentHealthScore >= 7.5) {
-      response += `Your Nash Health Score of ${currentHealthScore}/10 is really good! 🌸 You're doing well with most areas. `;
+      response += `Your Health Score of ${currentHealthScore}/10 is really good! 🌸 You're doing well with most areas. `;
     } else if (currentHealthScore >= 6) {
-      response += `Your Nash Health Score of ${currentHealthScore}/10 shows room for gentle improvement. 🌿 `;
+      response += `Your Health Score of ${currentHealthScore}/10 shows room for gentle improvement. 🌿 `;
     } else {
-      response += `Your Nash Health Score of ${currentHealthScore}/10 suggests we should focus on bringing things back into balance. 🌱 `;
+      response += `Your Health Score of ${currentHealthScore}/10 suggests we should focus on bringing things back into balance. 🌱 `;
     }
     
     response += `Your balance status is "${balanceStatus}" - `;
     
     if (balanceStatus === 'Harmonious') {
-      response += `which means all your health factors are working beautifully together! This is the Nash equilibrium we aim for. `;
+      response += `which means all your health factors are working beautifully together! This is the harmony we aim for. `;
     } else if (balanceStatus === 'Moderate') {
       response += `which means most areas are doing well, but we can fine-tune the balance. `;
     } else {
       response += `which means some areas need more attention to achieve harmony. Don't worry - small changes can make a big difference! `;
     }
     
-    response += `\n\nThe Nash approach means no single factor can improve without affecting others. Think of it like a garden - everything needs to work together for the most beautiful blooms! 🌷`;
+    response += `\n\nThe balanced approach means all factors work together for your wellness. Think of it like a garden - everything needs to work together for the most beautiful blooms! 🌷`;
     
     return response;
   };
@@ -429,7 +429,7 @@ export const PersonalizedAIAssistant = () => {
           <div className="ml-auto flex items-center space-x-2 text-xs">
             <div className="flex items-center space-x-1">
               <Heart className="h-3 w-3 text-pink-500" />
-              <span>{nashResult.finalScore}/10</span>
+              <span>{healthResult.finalScore}/10</span>
             </div>
             <div className="flex items-center space-x-1">
               <Target className="h-3 w-3 text-purple-500" />

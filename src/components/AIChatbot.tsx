@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Heart, AlertCircle, Calendar, Pill } from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
-import { useNashHealthScore } from '@/hooks/useNashHealthScore';
+import { useHealthScore } from '@/hooks/useHealthScore';
 import { useSymptomLogger } from '@/hooks/useSymptomLogger';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -16,7 +16,7 @@ interface Message {
 
 export const AIChatbot = () => {
   const { profile } = useProfile();
-  const { nashResult } = useNashHealthScore();
+  const { healthResult } = useHealthScore();
   const { symptoms } = useSymptomLogger();
   
   const getPersonalizedGreeting = () => {
@@ -122,19 +122,19 @@ export const AIChatbot = () => {
     
     // Check for health score questions
     if (lowerMessage.includes('health score') || lowerMessage.includes('how am i doing') || lowerMessage.includes('my health')) {
-      if (nashResult.finalScore > 0) {
-        let response = `Your current health score is ${nashResult.finalScore}/10 (${nashResult.status}) ${nashResult.flowerLevel}. `;
+      if (healthResult.finalScore > 0) {
+        let response = `Your current health score is ${healthResult.finalScore}/10 (${healthResult.status}) ${healthResult.flowerLevel}. `;
         
-        if (nashResult.status === 'Critical') {
+        if (healthResult.status === 'Critical') {
           response += "I'm concerned about some indicators. Please consider scheduling a doctor's appointment soon. ";
-        } else if (nashResult.status === 'Caution') {
+        } else if (healthResult.status === 'Caution') {
           response += "There are some areas we can improve together. ";
         } else {
           response += "You're doing great! Keep up the good work. ";
         }
         
-        if (nashResult.recommendations.length > 0) {
-          response += `\n\nMy recommendations: ${nashResult.recommendations[0]}`;
+        if (healthResult.recommendations.length > 0) {
+          response += `\n\nMy recommendations: ${healthResult.recommendations[0]}`;
         }
         
         if (profile?.pregnancy_week) {

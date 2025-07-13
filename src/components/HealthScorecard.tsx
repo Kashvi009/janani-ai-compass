@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Heart, Activity, AlertTriangle, CheckCircle, Trophy, Star, Calendar, Plus, TrendingUp, LogOut, Target, Zap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useHealthScorecard } from '@/hooks/useHealthScorecard';
-import { useNashHealthScore } from '@/hooks/useNashHealthScore';
+import { useHealthScore } from '@/hooks/useHealthScore';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -29,7 +29,7 @@ export const HealthScorecard = () => {
     addHealthRecord 
   } = useHealthScorecard();
   
-  const { nashResult, healthFactors, updateFactors } = useNashHealthScore();
+  const { healthResult, healthFactors, updateFactors } = useHealthScore();
 
   const [healthRecord, setHealthRecord] = useState<Partial<HealthRecord>>({
     bloodPressureSystolic: 120,
@@ -156,36 +156,36 @@ export const HealthScorecard = () => {
         {/* Scorecard Tab */}
         {activeTab === 'scorecard' && (
           <div className="space-y-6">
-            {/* Nash Equilibrium Health Score */}
+            {/* Health Balance Score */}
             <div className="bg-white rounded-3xl p-6 shadow-xl">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  <h2 className="text-2xl font-bold text-gray-800">Nash Health Balance</h2>
-                  <div className="text-3xl">{nashResult.flowerLevel}</div>
+                  <h2 className="text-2xl font-bold text-gray-800">Health Balance Score</h2>
+                  <div className="text-3xl">{healthResult.flowerLevel}</div>
                 </div>
-                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${getStatusColor(nashResult.status)}`}>
-                  {getStatusIcon(nashResult.status)}
-                  <span className="font-semibold">{nashResult.status}</span>
+                <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${getStatusColor(healthResult.status)}`}>
+                  {getStatusIcon(healthResult.status)}
+                  <span className="font-semibold">{healthResult.status}</span>
                 </div>
               </div>
               
               <div className="text-center mb-6">
                 <div className="text-6xl font-bold text-gray-800 mb-2">
-                  {nashResult.finalScore}
+                  {healthResult.finalScore}
                   <span className="text-2xl text-gray-500">/10</span>
                 </div>
-                <p className="text-gray-600 mb-2">Nash Equilibrium Health Score</p>
+                <p className="text-gray-600 mb-2">Balanced Health Score</p>
                 <div className="flex items-center justify-center space-x-4 text-sm">
                   <span className={`px-3 py-1 rounded-full ${
-                    nashResult.balanceStatus === 'Harmonious' ? 'bg-green-100 text-green-700' :
-                    nashResult.balanceStatus === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
+                    healthResult.balanceStatus === 'Harmonious' ? 'bg-green-100 text-green-700' :
+                    healthResult.balanceStatus === 'Moderate' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-red-100 text-red-700'
                   }`}>
-                    {nashResult.balanceStatus} Balance
+                    {healthResult.balanceStatus} Balance
                   </span>
                   <span className="flex items-center space-x-1 text-purple-600">
                     <Target className="h-4 w-4" />
-                    <span>Equilibrium: {nashResult.equilibriumFactor}</span>
+                    <span>Balance: {healthResult.equilibriumFactor}</span>
                   </span>
                 </div>
               </div>
@@ -264,30 +264,30 @@ export const HealthScorecard = () => {
               </div>
             </div>
 
-            {/* Nash-Inspired Recommendations */}
+            {/* Health Balance Insights */}
             <div className="bg-white rounded-3xl p-6 shadow-xl">
               <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
                 <Target className="h-5 w-5 mr-2 text-purple-500" />
-                Nash Equilibrium Insights
+                Health Balance Insights
               </h3>
               <div className="space-y-3">
-                {nashResult.recommendations.map((rec, index) => (
+                {healthResult.recommendations.map((rec, index) => (
                   <div key={index} className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl p-4">
                     <p className="text-gray-800 font-medium">{rec}</p>
                   </div>
                 ))}
                 
-                {nashResult.balanceStatus === 'Harmonious' && (
+                {healthResult.balanceStatus === 'Harmonious' && (
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4">
-                    <p className="text-green-800 font-medium">🌸 Perfect health equilibrium! All factors are working in harmony.</p>
+                    <p className="text-green-800 font-medium">🌸 Perfect health harmony! All factors are working in beautiful balance.</p>
                   </div>
                 )}
               </div>
               
               <div className="mt-4 p-4 bg-gray-50 rounded-2xl">
                 <p className="text-sm text-gray-600">
-                  <strong>Nash Equilibrium in Health:</strong> Just like in game theory, your health factors achieve balance when 
-                  no single area can improve without affecting others. This score rewards overall harmony over perfection in just one area.
+                  <strong>Balanced Health Approach:</strong> Your health score reflects harmony between all areas of wellness.
+                  This approach rewards overall balance over perfection in just one area, creating sustainable health patterns.
                 </p>
               </div>
             </div>

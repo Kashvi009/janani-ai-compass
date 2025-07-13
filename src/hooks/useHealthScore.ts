@@ -8,7 +8,7 @@ interface HealthFactors {
   pcosScore: number;         // 0-10 based on PCOS management
 }
 
-interface NashHealthResult {
+interface HealthResult {
   finalScore: number;
   status: 'Stable' | 'Caution' | 'Critical';
   equilibriumFactor: number;
@@ -17,8 +17,8 @@ interface NashHealthResult {
   flowerLevel: '🌱' | '🌿' | '🌸' | '🌷' | '🌺';
 }
 
-// Nash Equilibrium-inspired weights - each factor influences others
-const NASH_WEIGHTS = {
+// Balanced health scoring weights - each factor influences others
+const HEALTH_WEIGHTS = {
   symptom: 0.30,
   vital: 0.30,
   activity: 0.15,
@@ -26,7 +26,7 @@ const NASH_WEIGHTS = {
   pcos: 0.10
 };
 
-export const useNashHealthScore = () => {
+export const useHealthScore = () => {
   const [healthFactors, setHealthFactors] = useState<HealthFactors>({
     symptomScore: 8,
     vitalScore: 9,
@@ -42,8 +42,8 @@ export const useNashHealthScore = () => {
     return Math.sqrt(variance);
   };
 
-  // Nash Equilibrium-inspired scoring algorithm
-  const calculateNashScore = (factors: HealthFactors): NashHealthResult => {
+  // Balanced health scoring algorithm
+  const calculateHealthScore = (factors: HealthFactors): HealthResult => {
     const scores = [
       factors.symptomScore,
       factors.vitalScore,
@@ -54,20 +54,20 @@ export const useNashHealthScore = () => {
 
     // Base weighted score
     const rawScore = 
-      factors.symptomScore * NASH_WEIGHTS.symptom +
-      factors.vitalScore * NASH_WEIGHTS.vital +
-      factors.activityScore * NASH_WEIGHTS.activity +
-      factors.nutritionScore * NASH_WEIGHTS.nutrition +
-      factors.pcosScore * NASH_WEIGHTS.pcos;
+      factors.symptomScore * HEALTH_WEIGHTS.symptom +
+      factors.vitalScore * HEALTH_WEIGHTS.vital +
+      factors.activityScore * HEALTH_WEIGHTS.activity +
+      factors.nutritionScore * HEALTH_WEIGHTS.nutrition +
+      factors.pcosScore * HEALTH_WEIGHTS.pcos;
 
-    // Nash-like balancing penalty: discourage imbalance
+    // Balanced approach: discourage imbalance between health areas
     const standardDev = calculateStandardDeviation(scores);
     const penalty = standardDev * 0.3; // Apply penalty for unbalanced health
     
-    // Final score with Nash equilibrium adjustments
+    // Final score with balance adjustments
     const finalScore = Math.max(0, Math.min(10, rawScore - penalty));
     
-    // Equilibrium factor - measures balance between health areas
+    // Balance factor - measures harmony between health areas
     const equilibriumFactor = Math.max(0, 3 - standardDev); // Higher = more balanced
 
     // Determine status
@@ -87,7 +87,7 @@ export const useNashHealthScore = () => {
     else if (finalScore >= 7) flowerLevel = '🌸';
     else if (finalScore >= 5) flowerLevel = '🌿';
 
-    // Smart recommendations based on Nash analysis
+    // Smart recommendations based on health balance analysis
     const recommendations: string[] = [];
     
     if (balanceStatus === 'Imbalanced') {
@@ -106,7 +106,7 @@ export const useNashHealthScore = () => {
     }
     
     if (standardDev < 1) {
-      recommendations.push(`🌸 Amazing balance! You're in perfect health equilibrium`);
+      recommendations.push(`🌸 Amazing balance! You're in perfect health harmony`);
     }
 
     if (factors.activityScore < 5 && factors.nutritionScore < 5) {
@@ -128,14 +128,14 @@ export const useNashHealthScore = () => {
     setHealthFactors(prev => ({ ...prev, ...newFactors }));
   };
 
-  // Calculate current Nash score
-  const currentResult = calculateNashScore(healthFactors);
+  // Calculate current health score
+  const currentResult = calculateHealthScore(healthFactors);
 
   return {
     healthFactors,
     updateFactors,
-    nashResult: currentResult,
-    calculateNashScore
+    healthResult: currentResult,
+    calculateHealthScore
   };
 };
 

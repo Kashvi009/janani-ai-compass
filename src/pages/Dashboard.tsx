@@ -12,7 +12,7 @@ import { Testimonials } from "@/components/Testimonials";
 import { PCOSTracker } from "@/components/PCOSTracker";
 import { UltrasoundScheduler } from "@/components/UltrasoundScheduler";
 import { useProfile } from "@/hooks/useProfile";
-import { useNashHealthScore } from "@/hooks/useNashHealthScore";
+import { useHealthScore } from "@/hooks/useHealthScore";
 import { useGameification } from "@/hooks/useGameification";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
@@ -20,7 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'health' | 'symptoms' | 'ai' | 'family' | 'pcos' | 'ultrasound' | 'features' | 'research' | 'stories'>('overview');
   const { profile } = useProfile();
-  const { nashResult } = useNashHealthScore();
+  const { healthResult } = useHealthScore();
   const { userPoints } = useGameification();
   const navigate = useNavigate();
 
@@ -85,7 +85,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Health Score</p>
-                <p className="text-xl font-bold text-pink-600">{nashResult.finalScore}/10</p>
+                <p className="text-xl font-bold text-pink-600">{healthResult.finalScore}/10</p>
               </div>
             </div>
           </div>
@@ -97,7 +97,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Balance</p>
-                <p className="text-lg font-bold text-purple-600">{nashResult.balanceStatus}</p>
+                <p className="text-lg font-bold text-purple-600">{healthResult.balanceStatus}</p>
               </div>
             </div>
           </div>
@@ -167,18 +167,18 @@ const Dashboard = () => {
                     Health Balance Summary
                   </h3>
                   <div className="text-center mb-4">
-                    <div className="text-4xl mb-2">{nashResult.flowerLevel}</div>
-                    <div className="text-3xl font-bold text-gray-800">{nashResult.finalScore}/10</div>
+                    <div className="text-4xl mb-2">{healthResult.flowerLevel}</div>
+                    <div className="text-3xl font-bold text-gray-800">{healthResult.finalScore}/10</div>
                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      nashResult.status === 'Stable' ? 'bg-green-100 text-green-700' :
-                      nashResult.status === 'Caution' ? 'bg-yellow-100 text-yellow-700' :
+                      healthResult.status === 'Stable' ? 'bg-green-100 text-green-700' :
+                      healthResult.status === 'Caution' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-red-100 text-red-700'
                     }`}>
-                      {nashResult.status}
+                      {healthResult.status}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    {nashResult.recommendations.slice(0, 2).map((rec, index) => (
+                    {healthResult.recommendations.slice(0, 2).map((rec, index) => (
                       <div key={index} className="bg-pink-50 border border-pink-200 rounded-lg p-3">
                         <p className="text-sm text-gray-700">{rec}</p>
                       </div>
