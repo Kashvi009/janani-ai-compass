@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Home, User, Activity, Heart, Bot, Calendar, Baby, TrendingUp, Trophy, Target, Star, ArrowLeft, Users, Sparkles, BookOpen, Microscope } from 'lucide-react';
-import { Navigation } from "@/components/Navigation";
+import { Home, User, Activity, Heart, Bot, Calendar, LogOut, TrendingUp, Trophy, Target, Star, ArrowLeft, Users, Sparkles, BookOpen, Microscope } from 'lucide-react';
 import { HealthScorecard } from "@/components/HealthScorecard";
 import { SymptomTracker } from "@/components/SymptomTracker";
 import { PersonalizedAIAssistant } from "@/components/PersonalizedAIAssistant";
@@ -10,43 +9,60 @@ import { Features } from "@/components/Features";
 import { AIModelExplanation } from "@/components/AIModelExplanation";
 import { Research } from "@/components/Research";
 import { Testimonials } from "@/components/Testimonials";
+import { PCOSTracker } from "@/components/PCOSTracker";
+import { UltrasoundScheduler } from "@/components/UltrasoundScheduler";
 import { useProfile } from "@/hooks/useProfile";
 import { useNashHealthScore } from "@/hooks/useNashHealthScore";
 import { useGameification } from "@/hooks/useGameification";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'health' | 'symptoms' | 'ai' | 'family' | 'features' | 'research' | 'stories'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'health' | 'symptoms' | 'ai' | 'family' | 'pcos' | 'ultrasound' | 'features' | 'research' | 'stories'>('overview');
   const { profile } = useProfile();
   const { nashResult } = useNashHealthScore();
   const { userPoints } = useGameification();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Home, description: 'Your health snapshot' },
     { id: 'profile', label: 'Profile', icon: User, description: 'Personal information' },
     { id: 'health', label: 'Health Score', icon: Activity, description: 'Nash equilibrium analysis' },
     { id: 'symptoms', label: 'Symptoms', icon: Heart, description: 'Track & analyze patterns' },
-    { id: 'ai', label: 'AI Assistant', icon: Bot, description: 'Personalized guidance' },
+    { id: 'ai', label: 'AI Technology', icon: Bot, description: 'Personalized guidance' },
+    { id: 'pcos', label: 'PCOS Tracker', icon: Heart, description: 'Track PCOS symptoms' },
+    { id: 'ultrasound', label: 'Ultrasound', icon: Calendar, description: 'Schedule & manage scans' },
     { id: 'family', label: 'Family Mode', icon: Users, description: 'Care for loved ones' },
-    { id: 'features', label: 'Features', icon: Sparkles, description: 'Explore AI technology' },
     { id: 'research', label: 'Research', icon: Microscope, description: 'Trusted insights' },
     { id: 'stories', label: 'Stories', icon: BookOpen, description: 'Inspiring journeys' }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
-      <Navigation />
-      <div className="pt-20 pb-6 px-4">
+      <div className="pt-6 pb-6 px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Back to Website Link */}
-          <div className="mb-6">
-            <a 
-              href="/"
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-gray-700 hover:text-pink-600 border border-pink-100"
+          {/* Header with Back to Website and Logout */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
+            <Link 
+              to="/"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-gray-700 hover:text-pink-600 border border-pink-100 w-fit"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="text-sm font-medium">Explore Main Website</span>
-            </a>
+              <span className="text-sm font-medium">Back to Main Website</span>
+            </Link>
+            
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full shadow-md hover:shadow-lg transition-all w-fit"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm font-medium">Logout</span>
+            </button>
           </div>
         {/* Header with personalized greeting */}
         <div className="text-center mb-8">
@@ -221,14 +237,19 @@ const Dashboard = () => {
           {activeTab === 'profile' && <ProfileEditor />}
           {activeTab === 'health' && <HealthScorecard />}
           {activeTab === 'symptoms' && <SymptomTracker />}
-          {activeTab === 'ai' && <PersonalizedAIAssistant />}
-          {activeTab === 'family' && <FamilyMemberMode />}
-          {activeTab === 'features' && (
+          {activeTab === 'ai' && (
             <div className="space-y-8">
-              <Features />
+              <PersonalizedAIAssistant />
               <AIModelExplanation />
             </div>
           )}
+          {activeTab === 'pcos' && (
+            <div className="bg-white rounded-3xl p-6 shadow-xl">
+              <PCOSTracker />
+            </div>
+          )}
+          {activeTab === 'ultrasound' && <UltrasoundScheduler />}
+          {activeTab === 'family' && <FamilyMemberMode />}
           {activeTab === 'research' && <Research />}
           {activeTab === 'stories' && <Testimonials />}
         </div>
