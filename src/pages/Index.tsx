@@ -4,9 +4,6 @@ import { SmoothScroll } from "@/components/SmoothScroll";
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { AIModelExplanation } from "@/components/AIModelExplanation";
-import { PCOSTracker } from "@/components/PCOSTracker";
-import { UltrasoundScheduler } from "@/components/UltrasoundScheduler";
-
 import { Research } from "@/components/Research";
 import { Testimonials } from "@/components/Testimonials";
 import { CallToAction } from "@/components/CallToAction";
@@ -29,9 +26,6 @@ const Index = () => {
       </div>
       <Features />
       <AIModelExplanation />
-      <PCOSTracker />
-      <UltrasoundScheduler />
-      
       <Research />
       <Testimonials />
       <CallToAction />
