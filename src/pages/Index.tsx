@@ -25,7 +25,9 @@ const Index = () => {
         </Link>
       </div>
       <Features />
-      <AIModelExplanation />
+      <div id="ai">
+        <AIModelExplanation />
+      </div>
       <Research />
       <Testimonials />
       <CallToAction />
