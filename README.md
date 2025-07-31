@@ -64,41 +64,12 @@ src/
 - npm or pnpm
 - Supabase Project (for backend)
 
-### Getting Started
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/janani-ai-compass.git
-cd janani-ai-compass
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-````
-
----
-
-## 🌐 Supabase Configuration
-
-1. Create a Supabase project and copy the keys.
-2. Update your `.env` file:
-
-```
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-3. Deploy `supabase/functions/calculate-health-score/index.ts` as an Edge Function to dynamically compute maternal health scores.
-
 ---
 
 ## 🧪 AI Functionality
 
 * Health Score is calculated using parameters such as BP, sugar levels, mood, activity, and symptoms via a backend Edge Function.
 * Symptom Analyzer uses rule-based logic with plans to integrate LLM for deeper intent extraction.
-
 
 ---
 
