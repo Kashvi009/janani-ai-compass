@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, User, Activity, Heart, Bot, Calendar, LogOut, TrendingUp, Trophy, Target, Star, ArrowLeft, Users, Sparkles, BookOpen, Microscope } from 'lucide-react';
 import { HealthScorecard } from "@/components/HealthScorecard";
 import { SymptomTracker } from "@/components/SymptomTracker";
@@ -14,15 +14,51 @@ import { UltrasoundScheduler } from "@/components/UltrasoundScheduler";
 import { useProfile } from "@/hooks/useProfile";
 import { useHealthScore } from "@/hooks/useHealthScore";
 import { useGameification } from "@/hooks/useGameification";
+import { useSymptomLogger } from "@/hooks/useSymptomLogger";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'health' | 'symptoms' | 'ai' | 'family' | 'pcos' | 'ultrasound' | 'features' | 'research' | 'stories'>('overview');
   const { profile } = useProfile();
-  const { healthResult } = useHealthScore();
+  const { healthResult, calculateNashHealthScore, isCalculating } = useHealthScore();
   const { userPoints } = useGameification();
+  const { symptoms } = useSymptomLogger();
   const navigate = useNavigate();
+  const [dynamicHealthResult, setDynamicHealthResult] = useState(healthResult);
+
+  // Calculate dynamic health score using Nash equilibrium with real user data
+  useEffect(() => {
+    const calculateDynamicScore = async () => {
+      if (!profile?.id) return;
+
+      try {
+        // Build dynamic health factors from user data
+        const dynamicFactors = {
+          symptomScore: symptoms.length > 0 ? 
+            Math.max(1, 10 - symptoms.reduce((acc, s) => acc + s.severity, 0) / symptoms.length) : 8,
+          vitalScore: profile.weight_kg && profile.height_cm ? 
+            Math.min(10, Math.max(1, 10 - Math.abs(25 - (profile.weight_kg / Math.pow(profile.height_cm / 100, 2)))) / 2) : 7,
+          activityScore: userPoints?.daily_streak ? Math.min(10, 5 + userPoints.daily_streak) : 6,
+          nutritionScore: profile.age ? Math.min(10, Math.max(1, 8 - (profile.age > 35 ? 1 : 0))) : 7,
+          pcosScore: profile.has_pcos ? 7 : 10
+        };
+
+        // Call Nash equilibrium calculation
+        const nashResult = await calculateNashHealthScore(dynamicFactors, profile.id);
+        setDynamicHealthResult(nashResult);
+      } catch (error) {
+        console.error('Failed to calculate dynamic health score:', error);
+        // Fallback to static calculation
+        setDynamicHealthResult(healthResult);
+      }
+    };
+
+    calculateDynamicScore();
+  }, [profile, symptoms, userPoints, calculateNashHealthScore, healthResult]);
+
+  // Use dynamic result if available, otherwise fallback to static
+  const currentHealthResult = dynamicHealthResult;
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -85,7 +121,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Health Score</p>
-                <p className="text-xl font-bold text-pink-600">{healthResult.finalScore}/10</p>
+                <p className="text-xl font-bold text-pink-600">{isCalculating ? '...' : currentHealthResult.finalScore}/10</p>
               </div>
             </div>
           </div>
@@ -97,7 +133,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Balance</p>
-                <p className="text-lg font-bold text-purple-600">{healthResult.balanceStatus}</p>
+                <p className="text-lg font-bold text-purple-600">{currentHealthResult.balanceStatus}</p>
               </div>
             </div>
           </div>
@@ -167,18 +203,18 @@ const Dashboard = () => {
                     Health Balance Summary
                   </h3>
                   <div className="text-center mb-4">
-                    <div className="text-4xl mb-2">{healthResult.flowerLevel}</div>
-                    <div className="text-3xl font-bold text-gray-800">{healthResult.finalScore}/10</div>
+                    <div className="text-4xl mb-2">{currentHealthResult.flowerLevel}</div>
+                    <div className="text-3xl font-bold text-gray-800">{isCalculating ? '...' : currentHealthResult.finalScore}/10</div>
                     <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                      healthResult.status === 'Stable' ? 'bg-green-100 text-green-700' :
-                      healthResult.status === 'Caution' ? 'bg-yellow-100 text-yellow-700' :
+                      currentHealthResult.status === 'Excellent' || currentHealthResult.status === 'Good' ? 'bg-green-100 text-green-700' :
+                      currentHealthResult.status === 'Fair' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-red-100 text-red-700'
                     }`}>
-                      {healthResult.status}
+                      {currentHealthResult.status}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    {healthResult.recommendations.slice(0, 2).map((rec, index) => (
+                    {currentHealthResult.recommendations.slice(0, 2).map((rec, index) => (
                       <div key={index} className="bg-pink-50 border border-pink-200 rounded-lg p-3">
                         <p className="text-sm text-gray-700">{rec}</p>
                       </div>
