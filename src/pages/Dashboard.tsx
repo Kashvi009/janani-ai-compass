@@ -44,9 +44,15 @@ const Dashboard = () => {
           pcosScore: profile.has_pcos ? 7 : 10
         };
 
-        // Call Nash equilibrium calculation
-        const nashResult = await calculateNashHealthScore(dynamicFactors, profile.id);
-        setDynamicHealthResult(nashResult);
+        // Only call Nash calculation if we have meaningful data
+        if (symptoms.length > 0 || userPoints?.total_points || profile.weight_kg) {
+          const nashResult = await calculateNashHealthScore(dynamicFactors, profile.id);
+          setDynamicHealthResult(nashResult);
+        } else {
+          // Use local calculation with dynamic factors for new users
+          const localResult = await calculateNashHealthScore(dynamicFactors);
+          setDynamicHealthResult(localResult);
+        }
       } catch (error) {
         console.error('Failed to calculate dynamic health score:', error);
         // Fallback to static calculation
@@ -54,7 +60,9 @@ const Dashboard = () => {
       }
     };
 
-    calculateDynamicScore();
+    // Add a small delay to ensure data is loaded
+    const timeoutId = setTimeout(calculateDynamicScore, 1000);
+    return () => clearTimeout(timeoutId);
   }, [profile, symptoms, userPoints, calculateNashHealthScore, healthResult]);
 
   // Use dynamic result if available, otherwise fallback to static

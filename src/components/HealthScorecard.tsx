@@ -81,8 +81,21 @@ export const HealthScorecard = () => {
   };
 
   const handleRecordSubmit = async () => {
-    await addHealthRecord(healthRecord);
-    setShowRecordForm(false);
+    try {
+      await addHealthRecord(healthRecord);
+      setShowRecordForm(false);
+      // Reset form
+      setHealthRecord({
+        bloodPressureSystolic: 120,
+        bloodPressureDiastolic: 80,
+        bloodSugarFasting: 90,
+        bloodSugarPostMeal: 140,
+        weight: 65,
+        bmi: 23.5
+      });
+    } catch (error) {
+      console.error('Failed to submit health record:', error);
+    }
   };
 
   if (loading) {

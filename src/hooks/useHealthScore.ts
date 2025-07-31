@@ -71,26 +71,20 @@ export const useHealthScore = () => {
 
       // Call Nash equilibrium edge function
       const { data: { session } } = await supabase.auth.getSession();
-      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
       const { data: { user } } = await supabase.auth.getUser();
 
-      const response = await fetch(`https://hfqaaewsnqveshupijeo.supabase.co/functions/v1/calculate-health-score`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': authHeader
-        },
-        body: JSON.stringify({
+      const response = await supabase.functions.invoke('calculate-health-score', {
+        body: {
           factors: nashFactors,
           userId: user?.id
-        })
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`Nash calculation failed: ${response.status}`);
+      if (response.error) {
+        throw new Error(`Nash calculation failed: ${response.error.message}`);
       }
 
-      const result = await response.json();
+      const result = response.data;
       
       // Convert Nash result to our format
       const nashHealthResult: HealthResult = {

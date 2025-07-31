@@ -89,7 +89,7 @@ export const useHealthScorecard = () => {
         .eq('user_id', user.id)
         .order('calculated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (scoreError && scoreError.code !== 'PGRST116') {
         console.error('Error fetching health score:', scoreError);
@@ -110,7 +110,7 @@ export const useHealthScorecard = () => {
         .from('user_points')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (pointsError && pointsError.code !== 'PGRST116') {
         console.error('Error fetching user points:', pointsError);
@@ -218,9 +218,10 @@ export const useHealthScorecard = () => {
         .from('health_records')
         .insert([newRecord])
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error('No data returned from insert');
 
       // Create health record object for scoring
       const healthRecord: HealthRecord = {
@@ -283,7 +284,7 @@ export const useHealthScorecard = () => {
         .from('user_points')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (fetchError && fetchError.code !== 'PGRST116') {
         console.error('Error fetching current points:', fetchError);
