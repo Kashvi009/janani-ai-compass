@@ -10,7 +10,7 @@ JANANI is a comprehensive maternal health platform that leverages AI to provide 
 
 ## 🚀 Live Demo
 
-👉 https://lovable.dev/projects/42bbefce-3701-452f-8b0b-e83059d2a770
+👉 https://janani-ai-compass.vercel.app/
 
 ---
 
