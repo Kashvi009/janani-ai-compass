@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HealthFactors {
   symptomScore: number;      // 0-10 based on logged symptoms
@@ -10,11 +11,21 @@ interface HealthFactors {
 
 interface HealthResult {
   finalScore: number;
-  status: 'Stable' | 'Caution' | 'Critical';
+  status: string;
   equilibriumFactor: number;
-  balanceStatus: 'Harmonious' | 'Moderate' | 'Imbalanced';
+  balanceStatus: string;
   recommendations: string[];
-  flowerLevel: '🌱' | '🌿' | '🌸' | '🌷' | '🌺';
+  flowerLevel: string;
+}
+
+interface NashFactors {
+  sleep: number;
+  nutrition: number;
+  stress: number;
+  exercise: number;
+  vitals: number;
+  symptoms: number;
+  pcos: number;
 }
 
 // Balanced health scoring weights - each factor influences others
@@ -35,6 +46,82 @@ export const useHealthScore = () => {
     pcosScore: 8
   });
 
+  const [nashResult, setNashResult] = useState<HealthResult | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  // Nash equilibrium health score calculation via backend
+  const calculateNashHealthScore = async (factors: HealthFactors, userId?: string): Promise<HealthResult> => {
+    if (!userId) {
+      return calculateLocalHealthScore(factors);
+    }
+
+    setIsCalculating(true);
+    
+    try {
+      // Convert 0-10 scale to 0-100 for Nash calculation
+      const nashFactors: NashFactors = {
+        sleep: (factors.activityScore * 10) * 0.7 + 30, // Estimate sleep quality from activity
+        nutrition: factors.nutritionScore * 10,
+        stress: Math.max(0, 100 - (factors.symptomScore * 10)), // Invert symptoms to get stress
+        exercise: factors.activityScore * 10,
+        vitals: factors.vitalScore * 10,
+        symptoms: 100 - (factors.symptomScore * 10), // Invert for Nash calculation
+        pcos: factors.pcosScore * 10
+      };
+
+      // Call Nash equilibrium edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : '';
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const response = await fetch(`https://hfqaaewsnqveshupijeo.supabase.co/functions/v1/calculate-health-score`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader
+        },
+        body: JSON.stringify({
+          factors: nashFactors,
+          userId: user?.id
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Nash calculation failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Convert Nash result to our format
+      const nashHealthResult: HealthResult = {
+        finalScore: Math.round(result.score / 10), // Convert back to 0-10 scale
+        status: result.status.charAt(0).toUpperCase() + result.status.slice(1),
+        equilibriumFactor: result.equilibriumReached ? 10 : 7,
+        balanceStatus: result.equilibriumReached ? "Harmonious" : "Developing",
+        recommendations: result.recommendations || [],
+        flowerLevel: getFlowerLevel(result.score / 10, result.equilibriumReached)
+      };
+
+      setNashResult(nashHealthResult);
+      return nashHealthResult;
+      
+    } catch (error) {
+      console.error('Nash calculation failed, using local fallback:', error);
+      return calculateLocalHealthScore(factors);
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  // Get flower level based on score and balance
+  const getFlowerLevel = (score: number, balanced: boolean): string => {
+    if (score >= 9 && balanced) return '🌺';
+    else if (score >= 8) return '🌷';
+    else if (score >= 7) return '🌸';
+    else if (score >= 5) return '🌿';
+    else return '🌱';
+  };
+
   // Standard deviation calculation for balance assessment
   const calculateStandardDeviation = (scores: number[]): number => {
     const mean = scores.reduce((a, b) => a + b, 0) / scores.length;
@@ -42,8 +129,8 @@ export const useHealthScore = () => {
     return Math.sqrt(variance);
   };
 
-  // Balanced health scoring algorithm
-  const calculateHealthScore = (factors: HealthFactors): HealthResult => {
+  // Fallback local calculation when Nash backend is unavailable
+  const calculateLocalHealthScore = (factors: HealthFactors): HealthResult => {
     const scores = [
       factors.symptomScore,
       factors.vitalScore,
@@ -62,55 +149,39 @@ export const useHealthScore = () => {
 
     // Balanced approach: discourage imbalance between health areas
     const standardDev = calculateStandardDeviation(scores);
-    const penalty = standardDev * 0.3; // Apply penalty for unbalanced health
+    const penalty = standardDev * 0.3;
     
-    // Final score with balance adjustments
     const finalScore = Math.max(0, Math.min(10, rawScore - penalty));
-    
-    // Balance factor - measures harmony between health areas
-    const equilibriumFactor = Math.max(0, 3 - standardDev); // Higher = more balanced
+    const equilibriumFactor = Math.max(0, 3 - standardDev);
 
     // Determine status
-    let status: 'Stable' | 'Caution' | 'Critical' = 'Stable';
+    let status = 'Stable';
     if (finalScore < 5) status = 'Critical';
     else if (finalScore < 7.5) status = 'Caution';
 
     // Balance assessment
-    let balanceStatus: 'Harmonious' | 'Moderate' | 'Imbalanced' = 'Harmonious';
+    let balanceStatus = 'Harmonious';
     if (standardDev > 2.5) balanceStatus = 'Imbalanced';
     else if (standardDev > 1.5) balanceStatus = 'Moderate';
 
-    // Flower level based on overall harmony
-    let flowerLevel: '🌱' | '🌿' | '🌸' | '🌷' | '🌺' = '🌱';
-    if (finalScore >= 9 && balanceStatus === 'Harmonious') flowerLevel = '🌺';
-    else if (finalScore >= 8) flowerLevel = '🌷';
-    else if (finalScore >= 7) flowerLevel = '🌸';
-    else if (finalScore >= 5) flowerLevel = '🌿';
+    const flowerLevel = getFlowerLevel(finalScore, balanceStatus === 'Harmonious');
 
-    // Smart recommendations based on health balance analysis
+    // Generate recommendations
     const recommendations: string[] = [];
     
     if (balanceStatus === 'Imbalanced') {
       const lowestScore = Math.min(...scores);
       const lowestIndex = scores.indexOf(lowestScore);
       const areas = ['symptoms', 'vitals', 'activity', 'nutrition', 'PCOS management'];
-      recommendations.push(`🎯 Focus on improving ${areas[lowestIndex]} to restore balance`);
+      recommendations.push(`Focus on improving ${areas[lowestIndex]} to restore balance`);
     }
     
     if (factors.vitalScore < factors.symptomScore - 2) {
-      recommendations.push(`⚠️ Your vitals need attention despite feeling okay - consult your doctor`);
-    }
-    
-    if (factors.symptomScore < factors.vitalScore - 2) {
-      recommendations.push(`💝 Your vitals are great! Let's work on symptom management for comfort`);
+      recommendations.push(`Your vitals need attention despite feeling okay - consult your doctor`);
     }
     
     if (standardDev < 1) {
-      recommendations.push(`🌸 Amazing balance! You're in perfect health harmony`);
-    }
-
-    if (factors.activityScore < 5 && factors.nutritionScore < 5) {
-      recommendations.push(`🌿 Gentle movement and good nutrition work together - start with one to boost both`);
+      recommendations.push(`Amazing balance! You're in perfect health harmony`);
     }
 
     return {
@@ -123,19 +194,21 @@ export const useHealthScore = () => {
     };
   };
 
-  // Simulate updating health factors from various sources
+  // Update health factors
   const updateFactors = (newFactors: Partial<HealthFactors>) => {
     setHealthFactors(prev => ({ ...prev, ...newFactors }));
   };
 
-  // Calculate current health score
-  const currentResult = calculateHealthScore(healthFactors);
+  // Get current result (use Nash if available, otherwise local)
+  const currentResult = nashResult || calculateLocalHealthScore(healthFactors);
 
   return {
     healthFactors,
     updateFactors,
     healthResult: currentResult,
-    calculateHealthScore
+    calculateHealthScore: calculateLocalHealthScore,
+    calculateNashHealthScore,
+    isCalculating
   };
 };
 
