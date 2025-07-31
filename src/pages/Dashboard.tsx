@@ -32,7 +32,7 @@ const Dashboard = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Home, description: 'Your health snapshot' },
     { id: 'profile', label: 'Profile', icon: User, description: 'Personal information' },
-    { id: 'health', label: 'Health Score', icon: Activity, description: 'Nash equilibrium analysis' },
+    { id: 'health', label: 'Health Score', icon: Activity, description: 'Wellness balance analysis' },
     { id: 'symptoms', label: 'Symptoms', icon: Heart, description: 'Track & analyze patterns' },
     { id: 'ai', label: 'AI Technology', icon: Bot, description: 'Personalized guidance' },
     { id: 'pcos', label: 'PCOS Tracker', icon: Heart, description: 'Track PCOS symptoms' },
