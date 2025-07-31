@@ -4,70 +4,123 @@
 
 **URL**: https://lovable.dev/projects/42bbefce-3701-452f-8b0b-e83059d2a770
 
-## How can I edit this code?
+Here's a professional `README.md` file for your **JANANI** project, without any references to Lovable. It includes all standard sections for a full-stack AI-powered maternal health platform built with TypeScript, Vite, React, Tailwind CSS, shadcn-ui, and Supabase.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+```markdown
+# 🤰 JANANI – Journey of A Nurtured And Nurturing Individual
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/42bbefce-3701-452f-8b0b-e83059d2a770) and start prompting.
+**AI-Powered Care for Every Mother**  
+JANANI is a comprehensive maternal health platform that leverages AI to provide personalized, accessible, and intelligent care throughout every stage of pregnancy. From symptom tracking to ultrasound scheduling and real-time health scoring, JANANI empowers mothers with tools to manage their journey with confidence.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🚀 Live Demo
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+👉 [Start Your Journey](https://your-domain-here.com)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🧠 Features
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- 🔍 **Smart Symptom Analyzer** – Detect and suggest insights based on reported symptoms.
+- 🧮 **AI-Driven Health Scorecard** – Real-time risk analysis using key health metrics.
+- 🤖 **Personalized AI Assistant** – Chatbot with tailored responses and health support.
+- 👩‍⚕️ **PCOS/PCOD Tracker** – Specialized logs for hormonal condition tracking.
+- 🩻 **Ultrasound Scheduler** – Schedule, track and get reminders for scans.
+- 👨‍👩‍👧 **Family Member Mode** – Include partner or caregiver access for shared support.
+- 🧘‍♀️ **Wellness Programs** – Suggestions for workouts, nutrition, and mindfulness.
+- 🧬 **Gamification & Progress Journal** – Celebrate milestones with visual progress.
+- 🔐 **Facial Login & Secure Auth** – Ensures safety and privacy of sensitive data.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🛠️ Tech Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- **Frontend**: React, TypeScript, Vite
+- **UI Framework**: Tailwind CSS, shadcn/ui
+- **State & Hooks**: React Hooks, Context API
+- **Backend**: Supabase (Auth, DB, Edge Functions)
+- **AI & ML**: Custom logic for Symptom Analysis & Health Score
+- **Deployment**: Static Hosting (e.g., Vercel/Netlify/Render)
+
+---
+
+## 📂 Project Structure
+
 ```
 
-**Edit a file directly in GitHub**
+src/
+├── components/           # UI Components (Forms, Modals, Dashboard Widgets)
+├── pages/                # Page Routes (Dashboard, Home, NotFound)
+├── hooks/                # Custom React Hooks (useHealthScore, useProfile, etc.)
+├── integrations/         # Supabase Configuration and DB Logic
+├── lib/                  # Utility Functions
+├── main.tsx              # App Entry Point
+├── App.tsx               # Root Component
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+````
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## ⚙️ Setup Instructions
 
-## What technologies are used for this project?
+### Prerequisites
 
-This project is built with:
+- Node.js (v18+)
+- npm or pnpm
+- Supabase Project (for backend)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Getting Started
 
-## How can I deploy this project?
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/janani-ai-compass.git
+cd janani-ai-compass
 
-Simply open [Lovable](https://lovable.dev/projects/42bbefce-3701-452f-8b0b-e83059d2a770) and click on Share -> Publish.
+# Install dependencies
+npm install
 
-## Can I connect a custom domain to my Lovable project?
+# Start development server
+npm run dev
+````
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🌐 Supabase Configuration
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Create a Supabase project and copy the keys.
+2. Update your `.env` file:
+
+```
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+3. Deploy `supabase/functions/calculate-health-score/index.ts` as an Edge Function to dynamically compute maternal health scores.
+
+---
+
+## 🧪 AI Functionality
+
+* Health Score is calculated using parameters such as BP, sugar levels, mood, activity, and symptoms via a backend Edge Function.
+* Symptom Analyzer uses rule-based logic with plans to integrate LLM for deeper intent extraction.
+
+
+---
+
+## 🛡️ License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👩‍💻 Author
+
+**Kashvi** – [GitHub](https://github.com/Kashvi009)
+
+---
+
+> JANANI is not just a project. It's a commitment to empowering maternal care through technology.
+
