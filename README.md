@@ -1,12 +1,4 @@
-# Welcome to your Lovable project
-
 ## Project info
-
-**URL**: https://lovable.dev/projects/42bbefce-3701-452f-8b0b-e83059d2a770
-
-Here's a professional `README.md` file for your **JANANI** project, without any references to Lovable. It includes all standard sections for a full-stack AI-powered maternal health platform built with TypeScript, Vite, React, Tailwind CSS, shadcn-ui, and Supabase.
-
----
 
 ```markdown
 # 🤰 JANANI – Journey of A Nurtured And Nurturing Individual
@@ -18,7 +10,7 @@ JANANI is a comprehensive maternal health platform that leverages AI to provide 
 
 ## 🚀 Live Demo
 
-👉 [Start Your Journey](https://your-domain-here.com)
+👉 https://lovable.dev/projects/42bbefce-3701-452f-8b0b-e83059d2a770
 
 ---
 
